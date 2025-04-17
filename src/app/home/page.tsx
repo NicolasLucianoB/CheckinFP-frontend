@@ -6,16 +6,24 @@ export default function HomePage() {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    const name = localStorage.getItem('userName');
-    if (name) setUserName(name);
+    const fullName = localStorage.getItem('userName');
+    const firstName = fullName?.split(' ')[0];
+    if (firstName) setUserName(firstName);
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-4">
-        {userName ? `Olá, ${userName}!` : 'Olá!'}
-      </h1>
-      {/* Aqui vão os gráficos, cards, filtros e outras funcionalidades */}
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="flex flex-col items-center gap-6">
+        <h1 className="text-3xl font-bold text-black">
+          {userName ? `A Paz, ${userName}!` : 'A Paz!'}
+        </h1>
+        <a
+          href="/checkin"
+          className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition text-lg"
+        >
+          Fazer Check-in
+        </a>
+      </div>
     </main>
   );
 }

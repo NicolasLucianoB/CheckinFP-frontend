@@ -48,16 +48,16 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-sm gap-4">
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
+        <h1 className="text-xl font-semibold text-black">Login</h1>
         <input
           type="email"
           name="email"
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="w-full border border-gray-400 px-3 p-2 placeholder-gray-400 text-black rounded focus:placeholder-transparent"
           required
         />
         <input
@@ -66,13 +66,20 @@ export default function LoginPage() {
           placeholder="Senha"
           value={form.password}
           onChange={handleChange}
-          className="p-2 border rounded"
+          className="w-full border border-gray-400 px-3 p-2 placeholder-gray-400 text-black rounded focus:placeholder-transparent"
           required
         />
         {error && <p className="text-red-600">{error}</p>}
-        <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
           Entrar
         </button>
+
+        <p className="text-black mt-2 text-center">
+          Novo no ministério?{' '}
+          <a href="/signup" className="text-blue-500 hover:underline">
+            Cadastre-se
+          </a>
+        </p>
       </form>
     </main>
   );
