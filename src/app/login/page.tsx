@@ -1,10 +1,12 @@
 'use client';
 
+import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setUser } = useUser();  // Acesso ao setUser diretamente
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
@@ -32,14 +34,11 @@ export default function LoginPage() {
         throw new Error(data.message || 'Email ou senha errados, irmão');
       }
 
-      localStorage.setItem('token', data.token);
-
-      console.log('Resposta da API:', data);
-      if (data.user?.name) {
-        localStorage.setItem('userName', data.user.name);
-      } else {
-        console.warn('Nome do voluntário não encontrado na resposta da API');
+      if (setUser) {
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
       }
+      localStorage.setItem('token', data.token);
 
       router.push('/home');
     } catch (err: any) {
