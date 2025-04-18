@@ -18,7 +18,9 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading) return <p>Carregando...</p>;
+  if (isLoading || !user) {
+    return <p>Loading...</p>;
+  }
 
   return <>{children}</>;
 }
