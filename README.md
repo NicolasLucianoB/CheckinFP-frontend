@@ -1,8 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CheckinFP - Volunteer Check-in System
 
-## Getting Started
+**CheckinFP** is a web application designed to streamline the check-in process for volunteers at events using **QR codes** for authentication and attendance tracking. The platform is built with **Next.js** and leverages **JWT** for secure authentication and session management.
 
-First, run the development server:
+## 🚀 Technologies Used
+
+This project utilizes the following technologies:
+
+- **Next.js**: React-based framework for building the application with SSR (Server Side Rendering) and SSG (Static Site Generation).
+- **TypeScript**: Typed superset of JavaScript for better tooling and reliability.
+- **Tailwind CSS**: Utility-first CSS framework for building modern, responsive UIs.
+- **JWT (JSON Web Token)**: For secure user authentication and authorization.
+- **React Context API**: For managing global state, particularly user authentication status.
+- **Vercel**: Deployment platform optimized for Next.js applications.
+
+## 🛠 Installation
+
+Follow these steps to run the project locally.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/CheckinFP.git
+cd CheckinFP
+```
+
+### 2. Install Dependencies
+
+Navigate to the `checkin-frontend` directory and install the required dependencies:
+
+```bash
+cd checkin-frontend
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+### 3. Start the Development Server
 
 ```bash
 npm run dev
@@ -10,27 +45,102 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Now, open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧑‍💻 Running the Application
 
-## Learn More
+After following the installation steps, you can start the application by running:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This will start the Next.js development server. The app will be accessible at:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Frontend (Next.js)**: `http://localhost:3000`
+- **Backend (Go)**: `http://localhost:8080` (Ensure the backend is running)
 
-## Deploy on Vercel
+### 📝 Default Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Home**: A dashboard displaying volunteer data, attendance stats, and a check-in button.
+- **Check-in**: Volunteers scan QR codes for attendance registration.
+- **Login**: Secure login page for user authentication.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🧑‍🔧 Project Structure
+
+Here's the general structure of the project:
+
+```
+CheckinFP/
+├── checkin-frontend/             # Frontend (Next.js)
+│   ├── app/                      # Pages and routing for the app
+│   ├── components/               # Reusable components (buttons, modals, etc.)
+│   ├── public/                   # Static files (images, fonts, etc.)
+│   └── styles/                   # Tailwind CSS configurations and custom styles
+└── checkin-backend/              # Backend (Go)
+    ├── controllers/              # API controllers for handling requests
+    ├── middlewares/              # Middleware (authentication, authorization)
+    ├── models/                   # Database models and ORM configuration
+    └── main.go                   # Main entry point for the Go server
+```
+
+---
+
+## 🔐 Authentication
+
+The authentication system is based on **JWT (JSON Web Token)**. When logging in, users receive a token that must be included in subsequent requests to access protected routes, such as the check-in page.
+
+1. **Login**: Users authenticate with their credentials, and the backend returns a JWT token.
+2. **Token Validation**: The frontend validates the token via a secure `/me` route, and the user context is updated accordingly.
+
+---
+
+## 💻 How to Contribute
+
+We welcome contributions! To contribute:
+
+1. **Fork** the repository.
+2. **Clone** your forked repo to your local machine.
+3. **Create a new branch** (`git checkout -b feature/your-feature`).
+4. **Make your changes**.
+5. **Commit your changes** (`git commit -am 'Add your feature'`).
+6. **Push your branch** (`git push origin feature/your-feature`).
+7. **Open a pull request** against the `main` branch.
+
+---
+
+## 📦 Deployment
+
+The easiest way to deploy the Next.js app is through the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js. For deploying your backend, consider using platforms like **Heroku**, **DigitalOcean**, or **AWS**.
+
+- [Deploy to Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
+- [Heroku Deployment Documentation](https://devcenter.heroku.com/articles/git)
+- [DigitalOcean Deployment Docs](https://www.digitalocean.com/docs/)
+
+---
+
+## 🌐 Links and Resources
+
+- [Next.js Documentation](https://nextjs.org/docs) - Learn more about Next.js features and APIs.
+- [Next.js GitHub Repository](https://github.com/vercel/next.js) - View the source code and contribute.
+- [JWT.io Introduction](https://jwt.io/introduction/) - Learn more about JSON Web Tokens.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🔧 TODOs and Roadmap
+
+- Add admin panel for managing volunteers and attendance records.
+- Implement email notifications for check-in confirmations.
+- Expand reporting and ranking features for volunteers.
