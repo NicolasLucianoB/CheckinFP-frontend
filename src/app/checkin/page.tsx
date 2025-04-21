@@ -1,10 +1,10 @@
 'use client'
 
-
 import { useUser } from '@/contexts/UserContext';
 import useIsClient from "@/hooks/useIsClient";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
+import { Camera } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function CheckinPage() {
@@ -20,33 +20,71 @@ export default function CheckinPage() {
 
     const qrRegionId = 'qr-reader';
     const html5QrCode = new Html5Qrcode(qrRegionId);
-    setLoading(true);
 
-    html5QrCode
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: 250 },
-        async (decodedText) => {
-          setScanning(false);
-          await html5QrCode.stop();
-          await html5QrCode.clear();
+    Html5Qrcode.getCameras()
+      .then((devices) => {
+        if (!devices || devices.length === 0) {
+          console.warn("Nenhuma câmera disponível ou permissão negada.");
+          setMessage("⚠️ Não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
           setLoading(false);
-          try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkin/${decodedText}`);
-            const data = await res.json();
-            setMessage(data.message || 'Check-in realizado com sucesso! /br Hora de servir com alegria!');
-          } catch (error) {
-            setMessage('Erro ao registrar check-in.');
-          }
-        },
-        (errorMessage) => {
-          console.warn('QR Error', errorMessage);
+          setScanning(false);
+          return;
         }
-      )
+
+        html5QrCode
+          .start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: 250 },
+            async () => {
+              await html5QrCode.stop();
+              await html5QrCode.clear();
+              setLoading(false);
+              setScanning(false);
+              try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkin`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+
+                let data = {};
+                try {
+                  data = await res.json();
+                } catch (jsonError) {
+                  console.warn('Falha ao interpretar JSON de resposta:', jsonError);
+                }
+
+                const successMessage = typeof data === 'object' && 'message' in data && typeof data.message === 'string'
+                  ? data.message
+                  : '✅ Check-in realizado com sucesso! /br Hora de servir com alegria!';
+
+                setMessage(successMessage);
+              } catch (error) {
+                console.error('Erro ao registrar check-in:', error);
+                setMessage('Erro ao registrar check-in.');
+              }
+            },
+            (errorMessage) => {
+              console.warn('QR Error', errorMessage);
+            }
+          )
+          .then(() => {
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.error('Erro ao iniciar scanner:', err);
+            setScanning(false);
+            setLoading(false);
+          });
+      })
       .catch((err) => {
-        console.error('Erro ao iniciar scanner:', err);
-        setScanning(false);
+        console.error('Erro ao acessar câmeras:', err);
+        setMessage("⚠️ Não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
         setLoading(false);
+        setScanning(false);
       });
 
     return () => {
@@ -72,7 +110,6 @@ export default function CheckinPage() {
           className="flex flex-col items-center justify-center w-full space-y-6"
         >
 
-
           <h1 className="text-3xl font-bold text-black">
             {firstName}, registre seu check-in!
           </h1>
@@ -86,9 +123,10 @@ export default function CheckinPage() {
               whileTap={{ scale: 0.95 }}
               whileHover={{ scale: 1.05 }}
               onClick={() => setScanning(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 transition flex items-center"
             >
-              📷 Escanear QR Code
+              <Camera className="mr-2" size={24} />  {/* Ícone de câmera */}
+              Escanear QR Code
             </motion.button>
           ) : (
             <motion.div
@@ -107,7 +145,15 @@ export default function CheckinPage() {
             </motion.div>
           )}
 
-          {loading && <p className="text-gray-500 text-sm">Carregando...</p>}
+          {loading && scanning && (
+            <motion.p
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="text-gray-500 text-sm"
+            >
+              Pelejando...
+            </motion.p>
+          )}
           {message && (
             <motion.p
               initial={{ scale: 0.9, opacity: 0 }}
