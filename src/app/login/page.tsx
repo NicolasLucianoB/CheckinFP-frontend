@@ -1,14 +1,18 @@
 'use client';
 
 import { useUser } from '@/contexts/UserContext';
+import useIsClient from '@/hooks/useIsClient';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser } = useUser();  // Acesso ao setUser diretamente
+  const { setUser } = useUser();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+
+  const isClient = useIsClient();
+  if (!isClient) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,7 +23,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +72,7 @@ export default function LoginPage() {
           className="w-full border border-gray-400 px-3 p-2 placeholder-gray-400 text-black rounded focus:placeholder-transparent"
           required
         />
-        {error && <p className="text-red-600">{error}</p>}
+        {error && <p className="text-red-600 text-center">{error}</p>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
           Entrar
         </button>

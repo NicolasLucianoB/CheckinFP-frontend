@@ -2,12 +2,15 @@
 
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
+import useIsClient from '@/hooks/useIsClient';
 import Link from 'next/link';
 
 export default function HomePage() {
+  const isClient = useIsClient();
   const { user } = useUser();
   const firstName = user?.name?.split(' ')[0];
 
+  if (!isClient) return null;
   return (
     <ProtectedRoute>
       <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">

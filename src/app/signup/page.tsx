@@ -1,10 +1,13 @@
 'use client';
 
+import { useUser } from '@/contexts/UserContext';
+import useIsClient from '@/hooks/useIsClient';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { setUser } = useUser();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,8 +15,9 @@ export default function SignUpPage() {
     password: '',
     confirmPassword: '',
   });
-
   const [error, setError] = useState('');
+  const isClient = useIsClient();
+  if (!isClient) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +32,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/signup', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,11 +43,19 @@ export default function SignUpPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error('Erro ao criar conta');
+        throw new Error(data.message || data.error || 'Erro ao criar conta');
       }
 
-      router.push('/login');
+      if (setUser) {
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+      localStorage.setItem('token', data.token);
+
+      router.push('/home');
     } catch (err: any) {
       setError(err.message || 'Erro desconhecido');
     }
@@ -104,7 +116,7 @@ export default function SignUpPage() {
           className="w-full border border-gray-400 px-3 py-2 rounded placeholder-gray-400 text-black focus:placeholder-transparent"
         />
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
           Cadastrar
