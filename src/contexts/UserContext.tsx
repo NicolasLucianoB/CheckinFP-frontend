@@ -31,16 +31,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         .then(async (res) => {
           if (!res.ok) throw new Error('Token inválido');
           const userData = await res.json();
+          localStorage.setItem('user', JSON.stringify(userData));
           setUser(userData);
         })
-        .catch(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
+        .catch((err) => {
+          console.warn('Erro ao buscar /me:', err.message);
+          // Não remove token automaticamente para evitar logout por erro temporário
         })
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     }
   }, []);
 
