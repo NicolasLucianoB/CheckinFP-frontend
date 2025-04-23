@@ -6,13 +6,11 @@ import useIsClient from "@/hooks/useIsClient";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 export default function CheckinPage() {
   const { user } = useUser();
   const isClient = useIsClient();
-  const router = useRouter();
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,7 +46,7 @@ export default function CheckinPage() {
               setLoading(false);
               setScanning(false);
               try {
-                const token = localStorage.getItem('token');
+                const token: string | null = localStorage.getItem('token');
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkin`, {
                   method: 'POST',
                   headers: {
@@ -57,7 +55,7 @@ export default function CheckinPage() {
                   },
                 });
 
-                let data = {};
+                let data: { message?: string } = {};
                 try {
                   data = await res.json();
                 } catch (jsonError) {

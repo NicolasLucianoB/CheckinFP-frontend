@@ -45,8 +45,9 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
 
       router.push('/home');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const typedError = err as Error;
+      setError(typedError.message);
     }
   };
 

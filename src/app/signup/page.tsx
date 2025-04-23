@@ -56,8 +56,12 @@ export default function SignUpPage() {
       localStorage.setItem('token', data.token);
 
       router.push('/home');
-    } catch (err: any) {
-      setError(err.message || 'Erro desconhecido');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Erro desconhecido');
+      } else {
+        setError('Erro desconhecido');
+      }
     }
   };
 
