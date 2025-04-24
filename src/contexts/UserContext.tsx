@@ -23,7 +23,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('token');
 
     if (token) {
-      fetch('http://localhost:8080/me', {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
