@@ -36,7 +36,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         })
         .catch((err) => {
           console.warn('Erro ao buscar /me:', err.message);
-          // Não remove token automaticamente para evitar logout por erro temporário
         })
         .finally(() => setIsLoading(false));
     } else {
