@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function CheckinPage() {
   const { user } = useUser();
+  const isAdmin = user?.is_admin;
   const isClient = useIsClient();
 
   const [message, setMessage] = useState('');
@@ -114,9 +115,19 @@ export default function CheckinPage() {
             className="flex flex-col items-center justify-center w-full space-y-6"
           >
             <h1 className="text-3xl font-bold text-black">{firstName}, registre seu check-in!</h1>
-            <p className="text-lg text-gray-600 text-center">Clique no ícone de câmera e escaneie o QR Code.</p>
+            <p className="text-lg text-gray-600 text-center">
+              {isAdmin
+                ? "Aqui está seu QR Code diário. Compartilhe com os voluntários."
+                : "Clique no ícone de câmera e escaneie o QR Code."}
+            </p>
 
-            {!scanning ? (
+            {isAdmin ? (
+              <img
+                src={`${process.env.NEXT_PUBLIC_API_URL}/generate/qr`}
+                alt="QR Code do dia"
+                className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
+              />
+            ) : !scanning ? (
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
@@ -146,7 +157,7 @@ export default function CheckinPage() {
               </motion.div>
             )}
 
-            {loading && scanning && (
+            {loading && scanning && !isAdmin && (
               <motion.p
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 1.2, repeat: Infinity }}
