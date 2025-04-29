@@ -122,15 +122,15 @@ export default function CheckinPage() {
             <h1 className="text-3xl font-bold text-black">{firstName}, registre seu check-in!</h1>
             <p className="text-lg text-gray-600 text-center">
               {isAdmin
-                ? "Aqui está seu QR Code diário. Compartilhe com os voluntários."
+                ? "Aqui está o QR Code do culto. Compartilhe com os voluntários."
                 : "Clique no ícone de câmera e escaneie o QR Code."}
             </p>
 
             {isAdmin ? (
               <img
                 src={`${typeof window !== 'undefined' && window.location.hostname === 'localhost'
-                    ? 'http://localhost:8080'
-                    : process.env.NEXT_PUBLIC_API_URL
+                  ? 'http://localhost:8080'
+                  : process.env.NEXT_PUBLIC_API_URL
                   }/generate/qr`}
                 alt="QR Code do dia"
                 className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
