@@ -48,7 +48,12 @@ export default function CheckinPage() {
               setScanning(false);
               try {
                 const token: string | null = localStorage.getItem('token');
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkin`, {
+                const apiUrl =
+                  typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? 'http://localhost:8080'
+                    : process.env.NEXT_PUBLIC_API_URL;
+
+                const res = await fetch(`${apiUrl}/checkin`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -123,7 +128,10 @@ export default function CheckinPage() {
 
             {isAdmin ? (
               <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/generate/qr`}
+                src={`${typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? 'http://localhost:8080'
+                    : process.env.NEXT_PUBLIC_API_URL
+                  }/generate/qr`}
                 alt="QR Code do dia"
                 className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
               />
