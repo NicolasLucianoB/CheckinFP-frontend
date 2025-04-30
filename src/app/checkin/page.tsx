@@ -17,8 +17,34 @@ export default function CheckinPage() {
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef<HTMLDivElement>(null);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
 
   const firstName = user?.name?.split(' ')[0];
+
+  const apiUrl =
+    typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : process.env.NEXT_PUBLIC_API_URL;
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const token = localStorage.getItem('token');
+    fetch(`${apiUrl}/generate/qr`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.url) {
+          setQrUrl(data.url);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar QR Code:", err);
+      });
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!scanning || !scannerRef.current) return;
@@ -127,14 +153,44 @@ export default function CheckinPage() {
             </p>
 
             {isAdmin ? (
-              <img
-                src={`${typeof window !== 'undefined' && window.location.hostname === 'localhost'
-                  ? 'http://localhost:8080'
-                  : process.env.NEXT_PUBLIC_API_URL
-                  }/generate/qr`}
-                alt="QR Code do dia"
-                className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
-              />
+              qrUrl ? (
+                <>
+                  <img
+                    src={qrUrl}
+                    alt="QR Code do dia"
+                    className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
+                  />
+                  <button
+                    onClick={async () => {
+                      const token = localStorage.getItem('token');
+                      const res = await fetch(`${apiUrl}/generate/qr/reset`, {
+                        method: 'POST',
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      });
+
+                      if (res.ok) {
+                        const data = await res.json();
+                        setMessage(data.message || 'QR Code resetado!');
+                        // Recarrega o novo QR após reset
+                        fetch(`${apiUrl}/generate/qr`, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        })
+                          .then(res => res.json())
+                          .then(data => setQrUrl(data.url));
+                      } else {
+                        setMessage('Falha ao resetar QR Code.');
+                      }
+                    }}
+                    className="mt-4 text-sm text-blue-600 underline"
+                  >
+                    🔄 Gerar novo QR Code
+                  </button>
+                </>
+              ) : (
+                <p className="text-gray-500 text-sm">Carregando QR Code...</p>
+              )
             ) : !scanning ? (
               <motion.button
                 whileTap={{ scale: 0.95 }}
