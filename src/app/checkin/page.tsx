@@ -35,7 +35,13 @@ export default function CheckinPage() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          setMessage('Erro ao gerar QR Code.');
+          throw new Error('Erro ao gerar QR Code.');
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data?.url) {
           setQrUrl(data.url);
@@ -43,6 +49,7 @@ export default function CheckinPage() {
       })
       .catch((err) => {
         console.error("Erro ao buscar QR Code:", err);
+        setMessage('Falha ao gerar QR Code. Tente novamente mais tarde.');
       });
   }, [isAdmin]);
 
@@ -100,8 +107,8 @@ export default function CheckinPage() {
 
                 setMessage(successMessage);
               } catch (error) {
+                setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
                 console.error('Erro ao registrar check-in:', error);
-                setMessage('Erro ao registrar check-in.');
               }
             },
             (errorMessage) => {

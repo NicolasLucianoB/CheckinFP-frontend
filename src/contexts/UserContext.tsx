@@ -37,7 +37,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(userData);
         })
         .catch((err) => {
+          setIsLoading(false); // Muda o estado de carregamento
           console.warn('Erro ao buscar /me:', err.message);
+          setUser(null); // Reseta o estado de usuário em caso de erro
         })
         .finally(() => setIsLoading(false));
     } else {
