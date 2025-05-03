@@ -66,13 +66,20 @@ export default function CheckinPage() {
           .start(
             { facingMode: 'environment' },
             { fps: 10, qrbox: 250 },
-            async () => {
+            async (decodedText) => {
               setLoading(true);
-              await html5QrCode.stop();
-              await html5QrCode.clear();
-              setScanning(false);
-              setLoading(false);
 
+              // Verifica se o QR Code é válido
+              if (!decodedText.startsWith("CHECKIN:")) {
+                setMessage("❌ QR Code inválido. Verifique com o líder do ministério.");
+                setScanning(false);
+                setLoading(false);
+                await html5QrCode.stop();
+                await html5QrCode.clear();
+                return;
+              }
+
+              // Continua com o check-in
               try {
                 const token = localStorage.getItem('token');
                 const res = await fetch(`${apiUrl}/checkin`, {
@@ -81,6 +88,7 @@ export default function CheckinPage() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                   },
+                  body: JSON.stringify({ code: decodedText })
                 });
 
                 const data = await res.json().catch(() => ({}));
@@ -92,6 +100,11 @@ export default function CheckinPage() {
                 console.error('Erro ao registrar check-in:', error);
                 setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
               }
+
+              setScanning(false);
+              setLoading(false);
+              await html5QrCode.stop();
+              await html5QrCode.clear();
             },
             (err) => console.warn('QR Error', err)
           )
