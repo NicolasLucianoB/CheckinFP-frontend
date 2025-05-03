@@ -6,52 +6,46 @@ import useIsClient from "@/hooks/useIsClient";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function CheckinPage() {
   const { user } = useUser();
   const isAdmin = user?.is_admin;
   const isClient = useIsClient();
+  const firstName = user?.name?.split(' ')[0];
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const scannerRef = useRef<HTMLDivElement>(null);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
-
-  const firstName = user?.name?.split(' ')[0];
+  const scannerRef = useRef<HTMLDivElement>(null);
 
   const apiUrl =
     typeof window !== 'undefined' && window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
       : process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => {
-    if (!isAdmin) return;
-
+  const fetchQrCode = useCallback(() => {
     const token = localStorage.getItem('token');
     fetch(`${apiUrl}/generate/qr`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) {
-          setMessage('Erro ao gerar QR Code.');
-          throw new Error('Erro ao gerar QR Code.');
-        }
+        if (!res.ok) throw new Error('Erro ao gerar QR Code.');
         return res.json();
       })
       .then((data) => {
-        if (data?.url) {
-          setQrUrl(data.url);
-        }
+        if (data?.url) setQrUrl(data.url);
       })
       .catch((err) => {
         console.error("Erro ao buscar QR Code:", err);
         setMessage('Falha ao gerar QR Code. Tente novamente mais tarde.');
       });
-  }, [isAdmin]);
+  }, [apiUrl]);
+
+  useEffect(() => {
+    if (isAdmin) fetchQrCode();
+  }, [isAdmin, fetchQrCode]);
 
   useEffect(() => {
     if (!scanning || !scannerRef.current) return;
@@ -61,8 +55,7 @@ export default function CheckinPage() {
 
     Html5Qrcode.getCameras()
       .then((devices) => {
-        if (!devices || devices.length === 0) {
-          console.warn("Nenhuma câmera disponível ou permissão negada.");
+        if (!devices?.length) {
           setMessage("⚠️ Não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
           setLoading(false);
           setScanning(false);
@@ -77,15 +70,11 @@ export default function CheckinPage() {
               setLoading(true);
               await html5QrCode.stop();
               await html5QrCode.clear();
-              setLoading(false);
               setScanning(false);
-              try {
-                const token: string | null = localStorage.getItem('token');
-                const apiUrl =
-                  typeof window !== 'undefined' && window.location.hostname === 'localhost'
-                    ? 'http://localhost:8080'
-                    : process.env.NEXT_PUBLIC_API_URL;
+              setLoading(false);
 
+              try {
+                const token = localStorage.getItem('token');
                 const res = await fetch(`${apiUrl}/checkin`, {
                   method: 'POST',
                   headers: {
@@ -94,30 +83,18 @@ export default function CheckinPage() {
                   },
                 });
 
-                let data: { message?: string } = {};
-                try {
-                  data = await res.json();
-                } catch (jsonError) {
-                  console.warn('Falha ao interpretar JSON de resposta:', jsonError);
-                }
-
-                const successMessage = typeof data === 'object' && 'message' in data && typeof data.message === 'string'
+                const data = await res.json().catch(() => ({}));
+                const successMessage = typeof data.message === 'string'
                   ? data.message
                   : '✅ Check-in realizado com sucesso! /br Hora de servir com alegria!';
-
                 setMessage(successMessage);
               } catch (error) {
-                setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
                 console.error('Erro ao registrar check-in:', error);
+                setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
               }
             },
-            (errorMessage) => {
-              console.warn('QR Error', errorMessage);
-            }
+            (err) => console.warn('QR Error', err)
           )
-          .then(() => {
-            setLoading(false);
-          })
           .catch((err) => {
             console.error('Erro ao iniciar scanner:', err);
             setScanning(false);
@@ -127,17 +104,14 @@ export default function CheckinPage() {
       .catch((err) => {
         console.error('Erro ao acessar câmeras:', err);
         setMessage("⚠️ Não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
-        setLoading(false);
         setScanning(false);
+        setLoading(false);
       });
 
     return () => {
-      html5QrCode
-        .stop()
-        .then(() => html5QrCode.clear())
-        .catch(console.error);
+      html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
     };
-  }, [scanning]);
+  }, [scanning, apiUrl]);
 
   if (!isClient) return null;
 
@@ -172,20 +146,13 @@ export default function CheckinPage() {
                       const token = localStorage.getItem('token');
                       const res = await fetch(`${apiUrl}/generate/qr/reset`, {
                         method: 'POST',
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                        },
+                        headers: { Authorization: `Bearer ${token}` },
                       });
 
                       if (res.ok) {
                         const data = await res.json();
                         setMessage(data.message || 'QR Code resetado!');
-                        // Recarrega o novo QR após reset
-                        fetch(`${apiUrl}/generate/qr`, {
-                          headers: { Authorization: `Bearer ${token}` },
-                        })
-                          .then(res => res.json())
-                          .then(data => setQrUrl(data.url));
+                        fetchQrCode();
                       } else {
                         setMessage('Falha ao resetar QR Code.');
                       }
