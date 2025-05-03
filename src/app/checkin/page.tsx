@@ -123,6 +123,9 @@ export default function CheckinPage() {
 
     return () => {
       html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
+      if (scannerRef.current) {
+        scannerRef.current.innerHTML = '';
+      }
     };
   }, [scanning, apiUrl]);
 
