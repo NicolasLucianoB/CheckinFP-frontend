@@ -75,8 +75,14 @@ export default function CheckinPage() {
                   setMessage("❌ QR Code inválido ou sem token.");
                   setScanning(false);
                   setLoading(false);
-                  await html5QrCode.stop();
-                  await html5QrCode.clear();
+                  if (html5QrCode.getState() === 2) { // 2 = SCANNING
+                    try {
+                      await html5QrCode.stop();
+                      await html5QrCode.clear();
+                    } catch (err) {
+                      console.warn('Erro ao parar scanner:', err);
+                    }
+                  }
                   return;
                 }
 
@@ -101,10 +107,16 @@ export default function CheckinPage() {
 
               setScanning(false);
               setLoading(false);
-              await html5QrCode.stop();
-              await html5QrCode.clear();
+              if (html5QrCode.getState() === 2) { // 2 = SCANNING
+                try {
+                  await html5QrCode.stop();
+                  await html5QrCode.clear();
+                } catch (err) {
+                  console.warn('Erro ao parar scanner:', err);
+                }
+              }
             },
-            (err) => console.warn('QR Error', err)
+            () => { }
           )
           .catch((err) => {
             console.error('Erro ao iniciar scanner:', err);
@@ -120,7 +132,16 @@ export default function CheckinPage() {
       });
 
     return () => {
-      html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
+      if (html5QrCode.getState() === 2) { // 2 = SCANNING
+        (async () => {
+          try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+          } catch (err) {
+            console.warn('Erro ao parar scanner:', err);
+          }
+        })();
+      }
       if (scannerRef.current) {
         scannerRef.current.innerHTML = '';
       }
