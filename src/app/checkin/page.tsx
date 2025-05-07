@@ -69,26 +69,24 @@ export default function CheckinPage() {
             async (decodedText) => {
               setLoading(true);
 
-              // Verifica se o QR Code é válido
-              if (!decodedText.startsWith("CHECKIN:")) {
-                setMessage("❌ QR Code inválido. Verifique com o líder do ministério.");
-                setScanning(false);
-                setLoading(false);
-                await html5QrCode.stop();
-                await html5QrCode.clear();
-                return;
-              }
-
-              // Continua com o check-in
               try {
+                const tokenParam = new URL(decodedText).searchParams.get("token");
+                if (!tokenParam) {
+                  setMessage("❌ QR Code inválido ou sem token.");
+                  setScanning(false);
+                  setLoading(false);
+                  await html5QrCode.stop();
+                  await html5QrCode.clear();
+                  return;
+                }
+
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${apiUrl}/checkin`, {
+                const res = await fetch(`${apiUrl}/checkin?token=${tokenParam}`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                   },
-                  body: JSON.stringify({ code: decodedText })
                 });
 
                 const data = await res.json().catch(() => ({}));
