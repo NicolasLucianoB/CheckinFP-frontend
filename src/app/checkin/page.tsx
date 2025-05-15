@@ -125,8 +125,8 @@ export default function CheckinPage() {
           });
       })
       .catch((err) => {
-        console.error('Erro ao acessar câmeras:', err);
-        setMessage("⚠️ Não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
+        console.error('Erro ao acessar câmera:', err);
+        setMessage("⚠️ Varão(oa) não conseguimos acessar sua câmera. Verifique as permissões do navegador.");
         setScanning(false);
         setLoading(false);
       });
