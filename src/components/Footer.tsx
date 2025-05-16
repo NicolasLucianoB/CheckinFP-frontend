@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="w-full py-4 flex flex-col items-center justify-center text-center text-base bg-gray-200 text-black">
+    <footer className="w-full py-3 flex flex-col items-center justify-center text-center text-base bg-gray-200 text-black">
       <Image
         src="/assets/logo.png"
         alt="Logo Igreja"
