@@ -13,7 +13,7 @@ export default function HomePage() {
   if (!isClient) return null;
   return (
     <ProtectedRoute>
-      <main className="min-h-[calc(100vh-126px)] flex items-center justify-center bg-gray-100 p-4">
+      <main className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-gray-100 p-4">
         <div className="flex flex-col items-center gap-6">
           <h1 className="text-3xl font-bold text-black">
             {firstName ? `A Paz, ${firstName}!` : 'A Paz!'}

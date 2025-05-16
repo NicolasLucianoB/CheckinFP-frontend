@@ -66,7 +66,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-126px)] flex items-center justify-center bg-gray-100 p-4">
+    <main className="min-h-[calc(100vh-114px)] flex items-center justify-center bg-gray-100 p-4">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
         <h1 className="text-xl font-semibold text-black">Sign Up</h1>
 
