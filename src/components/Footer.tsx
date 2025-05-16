@@ -10,8 +10,8 @@ export default function Footer() {
         height={50}
         className="mb-2"
       />
-      <p>
-        Made with <span className="mx-1">✝️ 🛐</span> by Nícolas
+      <p className="text-base">
+        Made with <span className="mx-1">✝️</span> by Nícolas
       </p>
     </footer>
   );
