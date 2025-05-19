@@ -99,11 +99,13 @@ export default function CheckinPage() {
 
                 if (res.status === 409) {
                   setMessage('Você já fez o check-in para este culto! 🙌🏽');
-                } else {
+                } else if (res.ok) {
                   const successMessage = typeof data.message === 'string'
                     ? data.message
                     : '✅ Check-in realizado com sucesso! \nHora de servir com alegria!';
                   setMessage(successMessage);
+                } else {
+                  setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
                 }
               } catch (error) {
                 console.error('Erro ao registrar check-in:', error);
