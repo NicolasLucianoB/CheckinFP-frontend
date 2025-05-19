@@ -136,7 +136,7 @@ export default function CheckinPage() {
 
               setScanning(false);
               setLoading(false);
-              if (html5QrCode.getState() === 2) { // 2 = SCANNING
+              if (html5QrCode.getState() === 2) {
                 try {
                   await html5QrCode.stop();
                   await html5QrCode.clear();
@@ -161,7 +161,7 @@ export default function CheckinPage() {
       });
 
     return () => {
-      if (html5QrCode.getState() === 2) { // 2 = SCANNING
+      if (html5QrCode.getState() === 2) {
         (async () => {
           try {
             await html5QrCode.stop();
