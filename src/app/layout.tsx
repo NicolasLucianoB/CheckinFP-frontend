@@ -25,15 +25,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        <UserProvider>
-          <main style={{ flex: 1 }}>{children}</main>
-        </UserProvider>
-        <Footer />
+        <div className="flex flex-col flex-grow min-h-screen">
+          <UserProvider>
+            <main className="flex-grow">{children}</main>
+          </UserProvider>
+          <div className="mt-auto h-[106px]">
+            <Footer />
+          </div>
+        </div>
       </body>
     </html>
   );

@@ -96,10 +96,15 @@ export default function CheckinPage() {
                 });
 
                 const data = await res.json().catch(() => ({}));
-                const successMessage = typeof data.message === 'string'
-                  ? data.message
-                  : '✅ Check-in realizado com sucesso! /br Hora de servir com alegria!';
-                setMessage(successMessage);
+
+                if (res.status === 409) {
+                  setMessage('Você já fez o check-in para este culto! 🙌🏽');
+                } else {
+                  const successMessage = typeof data.message === 'string'
+                    ? data.message
+                    : '✅ Check-in realizado com sucesso! \nHora de servir com alegria!';
+                  setMessage(successMessage);
+                }
               } catch (error) {
                 console.error('Erro ao registrar check-in:', error);
                 setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
