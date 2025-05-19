@@ -19,6 +19,7 @@ export default function CheckinPage() {
   const [scanning, setScanning] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const scannerRef = useRef<HTMLDivElement>(null);
+  const isSubmitting = useRef(false);
 
   const apiUrl =
     typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -67,6 +68,9 @@ export default function CheckinPage() {
             { facingMode: 'environment' },
             { fps: 10, qrbox: 250 },
             async (decodedText) => {
+              if (isSubmitting.current) return;
+              isSubmitting.current = true;
+
               setLoading(true);
 
               try {
@@ -110,6 +114,8 @@ export default function CheckinPage() {
               } catch (error) {
                 console.error('Erro ao registrar check-in:', error);
                 setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
+              } finally {
+                isSubmitting.current = false;
               }
 
               setScanning(false);
