@@ -101,13 +101,29 @@ export default function CheckinPage() {
 
                 const data = await res.json().catch(() => ({}));
 
-                if (res.status === 409) {
-                  setMessage('Você já fez o check-in para este culto! 🙌🏽');
-                } else if (res.ok) {
+                if (res.ok) {
                   const successMessage = typeof data.message === 'string'
                     ? data.message
                     : '✅ Check-in realizado com sucesso! \nHora de servir com alegria!';
                   setMessage(successMessage);
+
+                  setScanning(false);
+                  setLoading(false);
+
+                  if (html5QrCode.getState() === 2) {
+                    try {
+                      await html5QrCode.stop();
+                      await html5QrCode.clear();
+                    } catch (err) {
+                      console.warn('Erro ao parar scanner:', err);
+                    }
+                  }
+
+                  return;
+                }
+
+                if (res.status === 409) {
+                  setMessage('Você já fez o check-in para este culto! 🙌🏽');
                 } else {
                   setMessage('Erro ao registrar check-in. Tente novamente mais tarde.');
                 }
