@@ -1,5 +1,6 @@
 'use client';
 
+import LoadingMessage from '@/components/LoadingMessage';
 import { useUser } from '@/contexts/UserContext';
 import useIsClient from '@/hooks/useIsClient';
 import { useRouter } from 'next/navigation';
@@ -16,6 +17,7 @@ export default function SignUpPage() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const isClient = useIsClient();
   if (!isClient) return null;
 
@@ -25,9 +27,11 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem, irmão');
+      setLoading(false);
       return;
     }
 
@@ -46,6 +50,7 @@ export default function SignUpPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        setLoading(false);
         throw new Error(data.message || data.error || 'Erro ao criar conta');
       }
 
@@ -57,12 +62,18 @@ export default function SignUpPage() {
 
       router.push('/home');
     } catch (err: unknown) {
+      setLoading(false);
       if (err instanceof Error) {
         setError(err.message || 'Erro desconhecido');
       } else {
         setError('Erro desconhecido');
       }
     }
+  };
+
+  const handleGoToLogin = () => {
+    setLoading(true);
+    router.push('/login');
   };
 
   return (
@@ -126,11 +137,17 @@ export default function SignUpPage() {
           Cadastrar
         </button>
 
+        {loading && (
+          <div className="flex justify-center mt-2">
+            <LoadingMessage />
+          </div>
+        )}
+
         <p className="text-black mt-2 text-center">
           Já está no ministério?{' '}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <button onClick={handleGoToLogin} className="text-blue-500 hover:underline">
             Faça login
-          </a>
+          </button>
         </p>
 
       </form>

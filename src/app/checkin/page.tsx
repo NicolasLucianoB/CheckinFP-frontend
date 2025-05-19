@@ -1,5 +1,6 @@
 'use client';
 
+import LoadingMessage from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
 import useIsClient from "@/hooks/useIsClient";
@@ -259,17 +260,10 @@ export default function CheckinPage() {
               </motion.div>
             )}
 
-            {loading && scanning && !isAdmin && (
-              <motion.p
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-                className="text-gray-500 text-sm"
-              >
-                Pelejando...
-              </motion.p>
-            )}
 
-            {message && (
+            {loading && scanning && !isAdmin ? (
+              <LoadingMessage />
+            ) : message && (
               <motion.p
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

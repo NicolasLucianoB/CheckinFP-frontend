@@ -121,5 +121,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔧 TODOs and Roadmap
 
-- ✅ Add admin panel with manual QR Code generation for each event (valid for 5 hours).
+- ✅ Add admin panel with manual QR Code generation for each event (valid for 3 hours).
 - Expand reporting and ranking features for volunteers.
