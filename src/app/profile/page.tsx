@@ -27,7 +27,7 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState,
   } = useForm<UserProfile & { password?: string }>();
 
   useEffect(() => {
@@ -45,8 +45,12 @@ export default function ProfilePage() {
           role: data.role,
         });
         setPhoto(data.photo_url || '');
-      } catch (error: any) {
-        toast.error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error('Erro desconhecido');
+        }
       } finally {
         setLoading(false);
       }
@@ -69,11 +73,17 @@ export default function ProfilePage() {
 
       const result = await res.json();
       setIsLoading(false);
-      if (!res.ok) throw new Error(result.message || 'Erro ao atualizar perfil');
+      if (!res.ok) {
+        throw new Error(result.message || 'Erro ao atualizar perfil');
+      }
       toast.success('Perfil atualizado com sucesso');
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsLoading(false);
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Erro desconhecido');
+      }
     }
   };
 
@@ -125,7 +135,7 @@ export default function ProfilePage() {
               } else {
                 throw new Error('Erro ao enviar imagem');
               }
-            } catch (err) {
+            } catch {
               toast.dismiss();
               toast.error('Falha no upload');
             }
