@@ -27,7 +27,6 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     reset,
-    formState,
   } = useForm<UserProfile & { password?: string }>();
 
   useEffect(() => {
@@ -195,7 +194,8 @@ export default function ProfilePage() {
           </button>
           <button
             type="submit"
-            className="w-32 px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition text-center"
+            disabled={isLoading}
+            className="w-32 px-6 py-2 rounded text-white font-medium transition text-center bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
             Salvar
           </button>
