@@ -7,12 +7,14 @@ interface User {
   email: string;
   role: string;
   is_admin: boolean;
+  avatarUrl?: string;
 }
 
 interface UserContextType {
   user: User | null;
   setUser: (user: User) => void;
   isLoading: boolean;
+  logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -32,14 +34,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       })
         .then(async (res) => {
           if (!res.ok) throw new Error('Token inválido');
-          const userData = await res.json();
+          const rawUserData = await res.json();
+          const userData = {
+            ...rawUserData,
+            avatarUrl: rawUserData.photo_url,
+          };
           localStorage.setItem('user', JSON.stringify(userData));
           setUser(userData);
         })
         .catch((err) => {
-          setIsLoading(false); // Muda o estado de carregamento
+          setIsLoading(false);
           console.warn('Erro ao buscar /me:', err.message);
-          setUser(null); // Reseta o estado de usuário em caso de erro
+          setUser(null);
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -56,8 +62,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isLoading }}>
+    <UserContext.Provider value={{ user, setUser, isLoading, logout }}>
       {children}
     </UserContext.Provider>
   );

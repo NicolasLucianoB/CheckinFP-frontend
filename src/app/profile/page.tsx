@@ -1,9 +1,10 @@
 'use client';
 
 import LoadingMessage from '@/components/LoadingMessage';
+import ProtectedRoute from '@/components/ProtectedRouts';
 import { ArrowUturnLeftIcon, PencilSquareIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -203,278 +204,290 @@ export default function ProfilePage() {
   if (loading) return <p className="p-8 text-sm">Carregando perfil...</p>;
 
   return (
-    <main className="min-h-[calc(100vh-106px)] flex flex-col items-center justify-center bg-gray-100 p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-2 text-gray-700">Meu Perfil</h1>
+    <ProtectedRoute>
+      <AnimatePresence>
+        <main className="min-h-[calc(100vh-106px)] flex flex-col items-center justify-center bg-gray-100 p-6 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center w-full"
+          >
+            <h1 className="text-2xl font-bold mb-2 text-gray-700">Meu Perfil</h1>
 
-      <motion.p
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={showMessage ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 200 }}
-        className={`text-center text-sm font-medium ${message.includes('sucesso')
-          ? 'text-green-600'
-          : 'text-red-600'
-          }`}
-      >
-        {message}
-      </motion.p>
-
-      <div className="relative w-28 h-28 mb-1 flex items-center justify-center">
-        <Image
-          src={photo || '/assets/logo.png'}
-          alt="Foto de perfil"
-          width={200}
-          height={200}
-          className="rounded-full object-cover border shadow"
-        />
-        <button
-          className="absolute bottom-1 right-1 bg-white border rounded-full p-1 shadow hover:bg-gray-100"
-          title="Editar foto de perfil"
-          onClick={() => {
-            if (!photo) {
-              fileInputRef.current?.click();
-            } else {
-              setShowImageMenu((prev) => !prev);
-            }
-          }}
-        >
-          <PencilSquareIcon className="w-4 h-4 text-gray-600" />
-        </button>
-        {showImageMenu && (
-          <div className="image-menu absolute z-10 top-full mt-2 right-0 bg-white border rounded shadow-lg text-sm w-40">
-            <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
-              onClick={() => {
-                setShowImageMenu(false);
-                fileInputRef.current?.click();
-              }}
+            <motion.p
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={showMessage ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 200 }}
+              className={`text-center text-sm font-medium ${message.includes('sucesso')
+                ? 'text-green-600'
+                : 'text-red-600'
+                }`}
             >
-              <PhotoIcon className="w-5 h-5 text-gray-700" /> Alterar imagem
-            </button>
-            <button
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
-              onClick={() => {
-                setPhoto('');
-                setPhotoMessage('');
-                setTimeout(() => setPhotoMessage('Foto removida.'), 10);
-                setShowImageMenu(false);
-              }}
-            >
-              <TrashIcon className="w-5 h-5 text-red-500" /> Remover imagem
-            </button>
-          </div>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', 'checkinfp');
-            formData.append('folder', 'profiles');
+              {message}
+            </motion.p>
 
-            setPhotoMessage('');
-            setTimeout(() => setPhotoMessage('Enviando imagem...'), 10);
-            try {
-              const res = await fetch(`https://api.cloudinary.com/v1_1/dwvrcpasa/image/upload`, {
-                method: 'POST',
-                body: formData,
-              });
-              const data = await res.json();
-              if (data.secure_url) {
-                setPhoto(data.secure_url);
-                setPhotoMessage('');
-              } else {
-                throw new Error('Erro ao enviar imagem');
-              }
-            } catch {
-              setPhotoMessage('');
-              setTimeout(() => setPhotoMessage('Falha no upload da foto'), 10);
-            } finally {
-              if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-              }
-            }
-          }}
-        />
-      </div>
-      <p className="text-sm mt-1 mb-3 text-gray-600 text-center flex flex-col items-center">
-        Foto de perfil
-      </p>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={showPhotoMessage ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center text-sm text-gray-700 mt-1"
-      >
-        {photoMessage}
-      </motion.p>
-
-      <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full flex flex-col items-center">
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-500">Nome completo</label>
-          <input
-            type="text"
-            {...register('name', {
-              required: '*Vigia! todos os campos são obrigatórios',
-              validate: (value) => {
-                const isComplete = value.trim().split(' ').length >= 2;
-                return isSubmitted ? (isComplete || '*Por favor, informe seu nome completo, varão(oa)') : true;
-              },
-            })}
-            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.name ? 'border-red-600' : 'border-gray-400'}`}
-            placeholder="João da Silva"
-            required
-          />
-          {errors.name && (
-            <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-500">Email</label>
-          <input
-            type="email"
-            {...register('email', {
-              required: '*Vigia! todos os campos são obrigatórios',
-              pattern: {
-                value: /^\S+@\S+$/i,
-                message: '*Insira um email válido, irmão(ã)',
-              },
-            })}
-            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.email ? 'border-red-600' : 'border-gray-400'}`}
-            placeholder="email@exemplo.com"
-            required
-          />
-          {errors.email && (
-            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-500">Função no ministério</label>
-          <input
-            type="text"
-            {...register('role')}
-            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.role ? 'border-red-600' : 'border-gray-400'}`}
-            placeholder="Projeção, Câmera, etc"
-          />
-          {errors.role && (
-            <p className="text-sm text-red-600 mt-1">{errors.role.message}</p>
-          )}
-        </div>
-
-        <div className="relative" ref={passwordRef}>
-          <div className="flex items-center justify-between">
-            <label className="block mb-1 text-sm font-medium text-gray-500">Alterar senha</label>
-            {isPasswordTouched && (
-              <ArrowUturnLeftIcon
-                className="w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800"
+            <div className="relative w-28 h-28 mb-1 flex items-center justify-center">
+              <Image
+                src={photo || '/assets/logo.png'}
+                alt="Foto de perfil"
+                width={200}
+                height={200}
+                className="rounded-full object-cover border shadow"
+              />
+              <button
+                className="absolute bottom-1 right-1 bg-white border rounded-full p-1 shadow hover:bg-gray-100"
+                title="Editar foto de perfil"
                 onClick={() => {
-                  setIsPasswordTouched(false);
-                  resetField('password');
-                  resetField('confirmPassword');
+                  if (!photo) {
+                    fileInputRef.current?.click();
+                  } else {
+                    setShowImageMenu((prev) => !prev);
+                  }
+                }}
+              >
+                <PencilSquareIcon className="w-4 h-4 text-gray-600" />
+              </button>
+              {showImageMenu && (
+                <div className="image-menu absolute z-10 top-full mt-2 right-0 bg-white border rounded shadow-lg text-sm w-40">
+                  <button
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
+                    onClick={() => {
+                      setShowImageMenu(false);
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <PhotoIcon className="w-5 h-5 text-gray-700" /> Alterar imagem
+                  </button>
+                  <button
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
+                    onClick={() => {
+                      setPhoto('');
+                      setPhotoMessage('');
+                      setTimeout(() => setPhotoMessage('Foto removida.'), 10);
+                      setShowImageMenu(false);
+                    }}
+                  >
+                    <TrashIcon className="w-5 h-5 text-red-500" /> Remover imagem
+                  </button>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  formData.append('upload_preset', 'checkinfp');
+                  formData.append('folder', 'profiles');
+
+                  setPhotoMessage('');
+                  setTimeout(() => setPhotoMessage('Enviando imagem...'), 10);
+                  try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/dwvrcpasa/image/upload`, {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    const data = await res.json();
+                    if (data.secure_url) {
+                      setPhoto(data.secure_url);
+                      setPhotoMessage('');
+                    } else {
+                      throw new Error('Erro ao enviar imagem');
+                    }
+                  } catch {
+                    setPhotoMessage('');
+                    setTimeout(() => setPhotoMessage('Falha no upload da foto'), 10);
+                  } finally {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }
                 }}
               />
-            )}
-          </div>
+            </div>
+            <p className="text-sm mt-1 mb-3 text-gray-600 text-center flex flex-col items-center">
+              Foto de perfil
+            </p>
 
-          <input
-            type={showPassword ? 'text' : 'password'}
-            readOnly={!isPasswordTouched}
-            {...register('password', {
-              minLength: {
-                value: 6,
-                message: '*A senha deve conter no mínimo 6 caracteres irmão(a)',
-              },
-            })}
-            className={`border px-3 py-2 rounded w-80 max-w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.password ? 'border-red-600' : 'border-gray-400'}`}
-            placeholder="********"
-          />
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={showPhotoMessage ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center text-sm text-gray-700 mt-1"
+            >
+              {photoMessage}
+            </motion.p>
 
-          <div className="absolute right-2 top-8.5">
-            {!isPasswordTouched ? (
-              <PencilSquareIcon
-                className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
-                onClick={() => setIsPasswordTouched(true)}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="w-5 h-5" />
-                ) : (
-                  <EyeIcon className="w-5 h-5" />
+            <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full flex flex-col items-center">
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-500">Nome completo</label>
+                <input
+                  type="text"
+                  {...register('name', {
+                    required: '*Vigia! todos os campos são obrigatórios',
+                    validate: (value) => {
+                      const isComplete = value.trim().split(' ').length >= 2;
+                      return isSubmitted ? (isComplete || '*Por favor, informe seu nome completo, varão(oa)') : true;
+                    },
+                  })}
+                  className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.name ? 'border-red-600' : 'border-gray-400'}`}
+                  placeholder="João da Silva"
+                  required
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
                 )}
-              </button>
-            )}
-          </div>
-        </div>
+              </div>
 
-        <div
-          ref={confirmPasswordRef}
-          className={`transition-all duration-300 ${isPasswordTouched ? 'block' : 'hidden'} w-80 max-w-full`}
-        >
-          <label className="block mb-1 text-sm font-medium text-gray-500">Confirmar nova senha</label>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            {...register('confirmPassword', {
-              validate: (value) => value === watch('password') || '*As senhas não coincidem, irmão(ã)',
-            })}
-            className={`border px-3 py-2 rounded w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.confirmPassword ? 'border-red-600' : 'border-gray-400'}`}
-            placeholder="********"
-          />
-          <div className="min-h-[1.25rem] mt-1">
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
-            )}
-            {!errors.confirmPassword && errors.password && (
-              <p className="text-sm text-red-600">{errors.password.message}</p>
-            )}
-          </div>
-        </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-500">Email</label>
+                <input
+                  type="email"
+                  {...register('email', {
+                    required: '*Vigia! todos os campos são obrigatórios',
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: '*Insira um email válido, irmão(ã)',
+                    },
+                  })}
+                  className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.email ? 'border-red-600' : 'border-gray-400'}`}
+                  placeholder="email@exemplo.com"
+                  required
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                )}
+              </div>
 
-        {isLoading && (
-          <div className="mb-4">
-            <LoadingMessage />
-          </div>
-        )}
-        <div className="flex gap-4 mt-6 justify-center">
-          <button
-            type="button"
-            onClick={() => {
-              reset({
-                name: initialData?.name || '',
-                email: initialData?.email || '',
-                role: initialData?.role || '',
-                password: '',
-                confirmPassword: '',
-              });
-              clearErrors();
-              setPhoto(initialData?.photo_url || '');
-              setMessage('');
-              setIsPasswordTouched(false);
-            }}
-            className="w-32 px-6 py-2 rounded bg-red-400 hover:bg-red-500 text-white font-medium transition text-center"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-32 px-6 py-2 rounded text-white font-medium transition text-center bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-          >
-            Salvar
-          </button>
-        </div>
-      </form>
-    </main>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-500">Função no ministério</label>
+                <input
+                  type="text"
+                  {...register('role')}
+                  className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.role ? 'border-red-600' : 'border-gray-400'}`}
+                  placeholder="Projeção, Câmera, etc"
+                />
+                {errors.role && (
+                  <p className="text-sm text-red-600 mt-1">{errors.role.message}</p>
+                )}
+              </div>
+
+              <div className="relative" ref={passwordRef}>
+                <div className="flex items-center justify-between">
+                  <label className="block mb-1 text-sm font-medium text-gray-500">Alterar senha</label>
+                  {isPasswordTouched && (
+                    <ArrowUturnLeftIcon
+                      className="w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800"
+                      onClick={() => {
+                        setIsPasswordTouched(false);
+                        resetField('password');
+                        resetField('confirmPassword');
+                      }}
+                    />
+                  )}
+                </div>
+
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  readOnly={!isPasswordTouched}
+                  {...register('password', {
+                    minLength: {
+                      value: 6,
+                      message: '*A senha deve conter no mínimo 6 caracteres irmão(a)',
+                    },
+                  })}
+                  className={`border px-3 py-2 rounded w-80 max-w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.password ? 'border-red-600' : 'border-gray-400'}`}
+                  placeholder="********"
+                />
+
+                <div className="absolute right-2 top-8.5">
+                  {!isPasswordTouched ? (
+                    <PencilSquareIcon
+                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
+                      onClick={() => setIsPasswordTouched(true)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="w-5 h-5" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5" />
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div
+                ref={confirmPasswordRef}
+                className={`transition-all duration-300 ${isPasswordTouched ? 'block' : 'hidden'} w-80 max-w-full`}
+              >
+                <label className="block mb-1 text-sm font-medium text-gray-500">Confirmar nova senha</label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  {...register('confirmPassword', {
+                    validate: (value) => value === watch('password') || '*As senhas não coincidem, irmão(ã)',
+                  })}
+                  className={`border px-3 py-2 rounded w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.confirmPassword ? 'border-red-600' : 'border-gray-400'}`}
+                  placeholder="********"
+                />
+                <div className="min-h-[1.25rem] mt-1">
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+                  )}
+                  {!errors.confirmPassword && errors.password && (
+                    <p className="text-sm text-red-600">{errors.password.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {isLoading && (
+                <div className="mb-4">
+                  <LoadingMessage />
+                </div>
+              )}
+              <div className="flex gap-4 mt-6 justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    reset({
+                      name: initialData?.name || '',
+                      email: initialData?.email || '',
+                      role: initialData?.role || '',
+                      password: '',
+                      confirmPassword: '',
+                    });
+                    clearErrors();
+                    setPhoto(initialData?.photo_url || '');
+                    setMessage('');
+                    setIsPasswordTouched(false);
+                  }}
+                  className="w-32 px-6 py-2 rounded bg-red-400 hover:bg-red-500 text-white font-medium transition text-center"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-32 px-6 py-2 rounded text-white font-medium transition text-center bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </main>
+      </AnimatePresence>
+    </ProtectedRoute>
   );
 }

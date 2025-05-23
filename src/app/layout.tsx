@@ -2,9 +2,18 @@
 
 import ClientWrapper from "@/components/ClientWrapper";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { UserProvider } from "@/contexts/UserContext";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+import { useUser } from "@/contexts/UserContext";
+
+function NavbarWrapper() {
+  const { user } = useUser();
+  if (!user) return null;
+  return <Navbar />;
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +40,7 @@ export default function RootLayout({
         <ClientWrapper>
           <div className="flex flex-col flex-grow min-h-screen">
             <UserProvider>
+              <NavbarWrapper />
               <main className="flex-grow">
                 <>
                   {children}
