@@ -45,7 +45,19 @@ export default function SignUpPage() {
         }),
       });
 
-      let result: any = {};
+      type ApiResponse = {
+        message?: string;
+        token?: string;
+        user?: {
+          id: number;
+          name: string;
+          email: string;
+          role: string;
+          is_admin: boolean;
+        };
+      };
+
+      let result: ApiResponse = {};
       try {
         result = await res.json();
       } catch {
@@ -63,11 +75,11 @@ export default function SignUpPage() {
         return;
       }
 
-      if (setUser) {
+      if (result.user && setUser) {
         setUser(result.user);
         localStorage.setItem('user', JSON.stringify(result.user));
       }
-      localStorage.setItem('token', result.token);
+      localStorage.setItem('token', result.token ?? '');
       router.push('/home');
     } catch (err: unknown) {
       if (err instanceof Error) {

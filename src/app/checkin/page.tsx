@@ -7,6 +7,7 @@ import useIsClient from "@/hooks/useIsClient";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera } from 'lucide-react';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function CheckinPage() {
@@ -50,7 +51,9 @@ export default function CheckinPage() {
   }, [isAdmin, fetchQrCode]);
 
   useEffect(() => {
-    if (!scanning || !scannerRef.current) return;
+    const scanner = scannerRef.current;
+
+    if (!scanning || !scanner) return;
 
     const qrRegionId = 'qr-reader';
     const html5QrCode = new Html5Qrcode(qrRegionId);
@@ -172,8 +175,8 @@ export default function CheckinPage() {
           }
         })();
       }
-      if (scannerRef.current) {
-        scannerRef.current.innerHTML = '';
+      if (scanner) {
+        scanner.innerHTML = '';
       }
     };
   }, [scanning, apiUrl]);
@@ -201,10 +204,12 @@ export default function CheckinPage() {
             {isAdmin ? (
               qrUrl ? (
                 <>
-                  <img
+                  <Image
                     src={qrUrl}
                     alt="QR Code do dia"
-                    className="w-64 h-64 object-contain rounded shadow-md bg-white p-4"
+                    width={256}
+                    height={256}
+                    className="object-contain rounded shadow-md bg-white p-4"
                   />
                   <button
                     onClick={async () => {
