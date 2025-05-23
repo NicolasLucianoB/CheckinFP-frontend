@@ -8,10 +8,18 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+type FormData = {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export default function SignUpPage() {
   const router = useRouter();
   const { setUser } = useUser();
-  const { register, handleSubmit, watch, formState: { errors }, setError, trigger, clearErrors } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }, setError, clearErrors } = useForm<FormData>({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     criteriaMode: 'all',
@@ -23,7 +31,7 @@ export default function SignUpPage() {
 
   console.log('Erro email:', errors.email);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
