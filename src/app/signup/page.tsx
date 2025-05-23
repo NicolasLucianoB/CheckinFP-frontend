@@ -29,7 +29,6 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const isClient = useIsClient();
 
-  console.log('Erro email:', errors.email);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
