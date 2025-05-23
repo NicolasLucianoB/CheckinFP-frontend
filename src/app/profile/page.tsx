@@ -1,17 +1,19 @@
 'use client';
 
 import LoadingMessage from '@/components/LoadingMessage';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowUturnLeftIcon, PencilSquareIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 
 type UserProfile = {
   name: string;
   email: string;
   role: string;
   photo_url?: string;
+  password?: string;
 };
 
 export default function ProfilePage() {
@@ -21,13 +23,65 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [initialData, setInitialData] = useState<UserProfile | null>(null);
   const [photo, setPhoto] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [photoMessage, setPhotoMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordTouched, setIsPasswordTouched] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLDivElement | null>(null);
+  const confirmPasswordRef = useRef<HTMLDivElement | null>(null);
+
+  const [showMessage, setShowMessage] = useState(false);
+  const [showPhotoMessage, setShowPhotoMessage] = useState(false);
+  const [showImageMenu, setShowImageMenu] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as HTMLElement).closest('.image-menu')) {
+        setShowImageMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const {
     register,
     handleSubmit,
     reset,
-  } = useForm<UserProfile & { password?: string }>();
+    resetField,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitted },
+    watch,
+  } = useForm<UserProfile & { password?: string; confirmPassword?: string }>({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    criteriaMode: 'all',
+    shouldFocusError: true,
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        passwordRef.current &&
+        confirmPasswordRef.current &&
+        !passwordRef.current.contains(event.target as Node) &&
+        !confirmPasswordRef.current.contains(event.target as Node) &&
+        !watch('password') &&
+        !watch('confirmPassword')
+      ) {
+        setIsPasswordTouched(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [watch]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,13 +96,14 @@ export default function ProfilePage() {
           name: data.name,
           email: data.email,
           role: data.role,
+          password: data.password,
         });
         setPhoto(data.photo_url || '');
       } catch (error: unknown) {
         if (error instanceof Error) {
-          toast.error(error.message);
+          setMessage(error.message);
         } else {
-          toast.error('Erro desconhecido');
+          setMessage('Erro desconhecido');
         }
       } finally {
         setLoading(false);
@@ -58,8 +113,54 @@ export default function ProfilePage() {
     fetchData();
   }, [reset, API_URL]);
 
-  const onSubmit = async (values: UserProfile & { password?: string }) => {
+  useEffect(() => {
+    if (message) {
+      setShowMessage(true);
+      const timer = setTimeout(() => setShowMessage(false), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowMessage(false);
+    }
+  }, [message]);
+
+  useEffect(() => {
+    if (photoMessage) {
+      setShowPhotoMessage(true);
+      const timer = setTimeout(() => setShowPhotoMessage(false), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowPhotoMessage(false);
+    }
+  }, [photoMessage]);
+
+  const onSubmit = async (values: UserProfile & { password?: string; confirmPassword?: string }) => {
+    console.log('Dados enviados para atualização:', values);
+    setMessage('');
+    const updatedFields: Partial<UserProfile & { password?: string }> = {};
+    if (values.name !== initialData?.name) updatedFields.name = values.name;
+    if (values.email !== initialData?.email) updatedFields.email = values.email;
+    if (values.role !== initialData?.role) updatedFields.role = values.role;
+    if (values.password) updatedFields.password = values.password;
+    if (photo !== initialData?.photo_url) updatedFields.photo_url = photo;
+    console.log('Campos atualizados:', updatedFields);
+
+    const noChanges =
+      values.name === initialData?.name &&
+      values.email === initialData?.email &&
+      values.role === initialData?.role &&
+      photo === initialData?.photo_url &&
+      !values.password;
+
+    if (noChanges) {
+      setIsLoading(false);
+      setTimeout(() => {
+        setMessage('Nenhuma alteração detectada.');
+      }, 50);
+      return;
+    }
+
     try {
+      setMessage('');
       setIsLoading(true);
       const res = await fetch(`${API_URL}/me`, {
         method: 'PUT',
@@ -67,21 +168,34 @@ export default function ProfilePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ ...values, photo_url: photo }),
+        body: JSON.stringify(updatedFields),
       });
 
       const result = await res.json();
       setIsLoading(false);
+
       if (!res.ok) {
+        console.log('Erro na resposta do backend:', result);
+        if (result.message?.toLowerCase().includes('email')) {
+          setError('email', { type: 'server', message: '*E-mail já cadastrado, irmão(ã)' });
+          return;
+        }
         throw new Error(result.message || 'Erro ao atualizar perfil');
       }
-      toast.success('Perfil atualizado com sucesso');
+      setMessage('Perfil atualizado com sucesso');
+      setInitialData({
+        name: values.name,
+        email: values.email,
+        role: values.role,
+        password: values.password,
+        photo_url: photo,
+      });
     } catch (error: unknown) {
       setIsLoading(false);
       if (error instanceof Error) {
-        toast.error(error.message);
+        setMessage(error.message);
       } else {
-        toast.error('Erro desconhecido');
+        setMessage('Erro desconhecido ao atualizar perfil');
       }
     }
   };
@@ -90,23 +204,65 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-[calc(100vh-106px)] flex flex-col items-center justify-center bg-gray-100 p-6 space-y-6">
-      {isLoading && <LoadingMessage />}
-      <h1 className="text-2xl font-bold mb-6 text-gray-700">Meu Perfil</h1>
+      <h1 className="text-2xl font-bold mb-2 text-gray-700">Meu Perfil</h1>
 
-      <div className="relative w-28 h-28 mb-4 flex items-center justify-center">
+      <motion.p
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={showMessage ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 200 }}
+        className={`text-center text-sm font-medium ${message.includes('sucesso')
+          ? 'text-green-600'
+          : 'text-red-600'
+          }`}
+      >
+        {message}
+      </motion.p>
+
+      <div className="relative w-28 h-28 mb-1 flex items-center justify-center">
         <Image
           src={photo || '/assets/logo.png'}
           alt="Foto de perfil"
-          fill
+          width={200}
+          height={200}
           className="rounded-full object-cover border shadow"
         />
         <button
           className="absolute bottom-1 right-1 bg-white border rounded-full p-1 shadow hover:bg-gray-100"
           title="Editar foto de perfil"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!photo) {
+              fileInputRef.current?.click();
+            } else {
+              setShowImageMenu((prev) => !prev);
+            }
+          }}
         >
           <PencilSquareIcon className="w-4 h-4 text-gray-600" />
         </button>
+        {showImageMenu && (
+          <div className="image-menu absolute z-10 top-full mt-2 right-0 bg-white border rounded shadow-lg text-sm w-40">
+            <button
+              className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
+              onClick={() => {
+                setShowImageMenu(false);
+                fileInputRef.current?.click();
+              }}
+            >
+              <PhotoIcon className="w-5 h-5 text-gray-700" /> Alterar imagem
+            </button>
+            <button
+              className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
+              onClick={() => {
+                setPhoto('');
+                setPhotoMessage('');
+                setTimeout(() => setPhotoMessage('Foto removida.'), 10);
+                setShowImageMenu(false);
+              }}
+            >
+              <TrashIcon className="w-5 h-5 text-red-500" /> Remover imagem
+            </button>
+          </div>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -117,10 +273,11 @@ export default function ProfilePage() {
             if (!file) return;
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', 'checkinfp'); // nome do seu preset
+            formData.append('upload_preset', 'checkinfp');
             formData.append('folder', 'profiles');
 
-            toast.loading('Enviando imagem...');
+            setPhotoMessage('');
+            setTimeout(() => setPhotoMessage('Enviando imagem...'), 10);
             try {
               const res = await fetch(`https://api.cloudinary.com/v1_1/dwvrcpasa/image/upload`, {
                 method: 'POST',
@@ -129,41 +286,73 @@ export default function ProfilePage() {
               const data = await res.json();
               if (data.secure_url) {
                 setPhoto(data.secure_url);
-                toast.dismiss();
-                toast.success('Foto atualizada!');
+                setPhotoMessage('');
               } else {
                 throw new Error('Erro ao enviar imagem');
               }
             } catch {
-              toast.dismiss();
-              toast.error('Falha no upload');
+              setPhotoMessage('');
+              setTimeout(() => setPhotoMessage('Falha no upload da foto'), 10);
+            } finally {
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
             }
           }}
         />
       </div>
-      <p className="text-sm mt-2 text-gray-600 text-center">Foto de perfil</p>
+      <p className="text-sm mt-1 mb-3 text-gray-600 text-center flex flex-col items-center">
+        Foto de perfil
+      </p>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={showPhotoMessage ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center text-sm text-gray-700 mt-1"
+      >
+        {photoMessage}
+      </motion.p>
 
       <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full flex flex-col items-center">
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-500">Nome completo</label>
           <input
             type="text"
-            {...register('name')}
-            className="border border-gray-400 text-gray-700 placeholder-gray-500 px-3 py-2 rounded w-80 max-w-full"
+            {...register('name', {
+              required: '*Vigia! todos os campos são obrigatórios',
+              validate: (value) => {
+                const isComplete = value.trim().split(' ').length >= 2;
+                return isSubmitted ? (isComplete || '*Por favor, informe seu nome completo, varão(oa)') : true;
+              },
+            })}
+            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.name ? 'border-red-600' : 'border-gray-400'}`}
             placeholder="João da Silva"
             required
           />
+          {errors.name && (
+            <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+          )}
         </div>
 
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-500">Email</label>
           <input
             type="email"
-            {...register('email')}
-            className="border border-gray-400 text-gray-700 placeholder-gray-500 px-3 py-2 rounded w-80 max-w-full"
+            {...register('email', {
+              required: '*Vigia! todos os campos são obrigatórios',
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: '*Insira um email válido, irmão(ã)',
+              },
+            })}
+            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.email ? 'border-red-600' : 'border-gray-400'}`}
             placeholder="email@exemplo.com"
             required
           />
+          {errors.email && (
+            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+          )}
         </div>
 
         <div>
@@ -171,11 +360,92 @@ export default function ProfilePage() {
           <input
             type="text"
             {...register('role')}
-            className="border border-gray-400 text-gray-700 placeholder-gray-500 px-3 py-2 rounded w-80 max-w-full"
+            className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.role ? 'border-red-600' : 'border-gray-400'}`}
             placeholder="Projeção, Câmera, etc"
           />
+          {errors.role && (
+            <p className="text-sm text-red-600 mt-1">{errors.role.message}</p>
+          )}
         </div>
 
+        <div className="relative" ref={passwordRef}>
+          <div className="flex items-center justify-between">
+            <label className="block mb-1 text-sm font-medium text-gray-500">Alterar senha</label>
+            {isPasswordTouched && (
+              <ArrowUturnLeftIcon
+                className="w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800"
+                onClick={() => {
+                  setIsPasswordTouched(false);
+                  resetField('password');
+                  resetField('confirmPassword');
+                }}
+              />
+            )}
+          </div>
+
+          <input
+            type={showPassword ? 'text' : 'password'}
+            readOnly={!isPasswordTouched}
+            {...register('password', {
+              minLength: {
+                value: 6,
+                message: '*A senha deve conter no mínimo 6 caracteres irmão(a)',
+              },
+            })}
+            className={`border px-3 py-2 rounded w-80 max-w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.password ? 'border-red-600' : 'border-gray-400'}`}
+            placeholder="********"
+          />
+
+          <div className="absolute right-2 top-8.5">
+            {!isPasswordTouched ? (
+              <PencilSquareIcon
+                className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
+                onClick={() => setIsPasswordTouched(true)}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="w-5 h-5" />
+                ) : (
+                  <EyeIcon className="w-5 h-5" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div
+          ref={confirmPasswordRef}
+          className={`transition-all duration-300 ${isPasswordTouched ? 'block' : 'hidden'} w-80 max-w-full`}
+        >
+          <label className="block mb-1 text-sm font-medium text-gray-500">Confirmar nova senha</label>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            {...register('confirmPassword', {
+              validate: (value) => value === watch('password') || '*As senhas não coincidem, irmão(ã)',
+            })}
+            className={`border px-3 py-2 rounded w-full pr-10 placeholder-gray-500 text-gray-700 ${errors.confirmPassword ? 'border-red-600' : 'border-gray-400'}`}
+            placeholder="********"
+          />
+          <div className="min-h-[1.25rem] mt-1">
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+            )}
+            {!errors.confirmPassword && errors.password && (
+              <p className="text-sm text-red-600">{errors.password.message}</p>
+            )}
+          </div>
+        </div>
+
+        {isLoading && (
+          <div className="mb-4">
+            <LoadingMessage />
+          </div>
+        )}
         <div className="flex gap-4 mt-6 justify-center">
           <button
             type="button"
@@ -184,9 +454,13 @@ export default function ProfilePage() {
                 name: initialData?.name || '',
                 email: initialData?.email || '',
                 role: initialData?.role || '',
+                password: '',
+                confirmPassword: '',
               });
+              clearErrors();
               setPhoto(initialData?.photo_url || '');
-              toast.success('Alterações descartadas');
+              setMessage('');
+              setIsPasswordTouched(false);
             }}
             className="w-32 px-6 py-2 rounded bg-red-400 hover:bg-red-500 text-white font-medium transition text-center"
           >
