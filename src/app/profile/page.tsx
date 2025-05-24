@@ -2,6 +2,7 @@
 
 import LoadingMessage from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
+import { useUser } from '@/contexts/UserContext';
 import { ArrowUturnLeftIcon, PencilSquareIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -19,6 +20,8 @@ type UserProfile = {
 
 export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
+  const { updateAvatar } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -228,16 +231,23 @@ export default function ProfilePage() {
               {message}
             </motion.p>
 
-            <div className="relative w-28 h-28 mb-1 flex items-center justify-center">
-              <Image
-                src={photo || '/assets/logo.png'}
-                alt="Foto de perfil"
-                width={200}
-                height={200}
-                className="rounded-full object-cover border shadow"
-              />
+            <div
+              className="relative w-32 h-32 rounded-full p-[3.5px] shadow mb-1"
+              style={{
+                background: 'conic-gradient(from 225deg, #28B242 0%, #80C447 5%, #FEA341 25%, #FEA341 38%, #FEA341 40%,rgb(248, 79, 141) 50%, #FE2674 62%, #3EA7E0 70%, #3EA7E0 90%, #28B242 100%)'
+              }}
+            >
+              <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                <Image
+                  src={photo || '/assets/logo.png'}
+                  alt=""
+                  width={112}
+                  height={112}
+                  className="w-28 h-28 object-cover rounded-full"
+                />
+              </div>
               <button
-                className="absolute bottom-1 right-1 bg-white border rounded-full p-1 shadow hover:bg-gray-100"
+                className="absolute bottom-1 right-1 bg-white border rounded-full p-1 shadow hover:bg-gray-100 z-20"
                 title="Editar foto de perfil"
                 onClick={() => {
                   if (!photo) {
@@ -264,6 +274,7 @@ export default function ProfilePage() {
                     className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
                     onClick={() => {
                       setPhoto('');
+                      updateAvatar('');
                       setPhotoMessage('');
                       setTimeout(() => setPhotoMessage('Foto removida.'), 10);
                       setShowImageMenu(false);
@@ -296,6 +307,7 @@ export default function ProfilePage() {
                     const data = await res.json();
                     if (data.secure_url) {
                       setPhoto(data.secure_url);
+                      updateAvatar(data.secure_url);
                       setPhotoMessage('');
                     } else {
                       throw new Error('Erro ao enviar imagem');

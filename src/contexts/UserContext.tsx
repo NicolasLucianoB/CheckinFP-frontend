@@ -15,6 +15,7 @@ interface UserContextType {
   setUser: (user: User) => void;
   isLoading: boolean;
   logout: () => void;
+  updateAvatar: (newAvatarUrl: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -68,8 +69,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
+  const updateAvatar = (newAvatarUrl: string) => {
+    setUser((prev) => prev ? { ...prev, avatarUrl: newAvatarUrl } : null);
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isLoading, logout }}>
+    <UserContext.Provider value={{ user, setUser, isLoading, logout, updateAvatar }}>
       {children}
     </UserContext.Provider>
   );

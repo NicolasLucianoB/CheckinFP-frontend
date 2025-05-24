@@ -41,14 +41,24 @@ export default function Navbar() {
         <span className="font-medium hidden sm:inline">Home</span>
       </button>
       <div className="relative" ref={menuRef}>
-        <Image
-          src={user?.avatarUrl || "/default-avatar.png"}
-          alt="Avatar"
-          width={40}
-          height={40}
-          className="rounded-full cursor-pointer object-cover"
+        <div
+          className="rounded-full p-[2px] cursor-pointer"
+          style={{
+            background: 'conic-gradient(from 225deg, #28B242 0%, #80C447 5%, #FEA341 25%, #FEA341 38%, #FEA341 40%, #FE2674 50%, #FE2674 62%, #3EA7E0 70%, #3EA7E0 90%, #28B242 100%)'
+          }}
           onClick={() => setOpen(!open)}
-        />
+        >
+          <div className="rounded-full bg-gray-100 overflow-hidden w-10 h-10">
+            <Image
+              alt=""
+              src={user?.avatarUrl || "/assets/logo.png"}
+              width={40}
+              height={40}
+              className="object-cover w-full h-full"
+              key={user?.avatarUrl || "default-avatar"}
+            />
+          </div>
+        </div>
         {open && (
           <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-50">
             <button
