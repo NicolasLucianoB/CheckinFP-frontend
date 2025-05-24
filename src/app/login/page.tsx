@@ -2,7 +2,6 @@
 
 import LoadingMessage from '@/components/LoadingMessage';
 import { useUser } from '@/contexts/UserContext';
-import useIsClient from '@/hooks/useIsClient';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -19,7 +18,6 @@ export default function LoginPage() {
   const { setUser } = useUser();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const isClient = useIsClient();
 
   const {
     register,
@@ -77,10 +75,6 @@ export default function LoginPage() {
       setError('password', { message: typedError.message });
     }
   };
-
-  if (!isClient) {
-    return <></>;
-  }
 
   return (
     <AnimatePresence>

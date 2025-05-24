@@ -3,13 +3,15 @@
 import { useUser } from "@/contexts/UserContext";
 import { Church } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {
   const { user, logout } = useUser();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const isPublic = pathname === "/login" || pathname === "/signup";
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,10 +22,17 @@ export default function Navbar() {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  if (!user || isPublic) return null;
 
   const handleLogout = () => {
     logout();
@@ -38,7 +47,7 @@ export default function Navbar() {
         className="flex items-center gap-2 text-gray-700 hover:text-black"
       >
         <Church className="h-6 w-6" />
-        <span className="font-medium hidden sm:inline">Home</span>
+        <span className="font-medium inline">Home</span>
       </button>
       <div className="relative" ref={menuRef}>
         <div
@@ -54,12 +63,13 @@ export default function Navbar() {
               src={user?.avatarUrl || "/assets/logo.png"}
               width={40}
               height={40}
-              className="object-cover w-full h-full"
+              className="object-cover w-10 h-10 rounded-full"
               key={user?.avatarUrl || "default-avatar"}
+              priority
             />
           </div>
         </div>
-        {open && (
+        {user && open && (
           <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-50">
             <button
               onClick={() => router.push("/profile")}

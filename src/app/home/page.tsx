@@ -2,16 +2,13 @@
 
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
-import useIsClient from '@/hooks/useIsClient';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function HomePage() {
-  const isClient = useIsClient();
   const { user } = useUser();
   const firstName = user?.name?.split(' ')[0];
 
-  if (!isClient) return null;
   return (
     <ProtectedRoute>
       <AnimatePresence>

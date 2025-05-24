@@ -2,7 +2,6 @@
 
 import LoadingMessage from '@/components/LoadingMessage';
 import { useUser } from '@/contexts/UserContext';
-import useIsClient from '@/hooks/useIsClient';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -28,7 +27,6 @@ export default function SignUpPage() {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const isClient = useIsClient();
 
 
   const onSubmit = async (data: FormData) => {
@@ -96,9 +94,6 @@ export default function SignUpPage() {
     router.push('/login');
   };
 
-  if (!isClient) {
-    return null;
-  }
 
   return (
     <AnimatePresence>

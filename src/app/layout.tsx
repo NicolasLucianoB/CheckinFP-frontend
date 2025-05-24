@@ -7,11 +7,9 @@ import { UserProvider } from "@/contexts/UserContext";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { useUser } from "@/contexts/UserContext";
+import clsx from 'clsx';
 
 function NavbarWrapper() {
-  const { user } = useUser();
-  if (!user) return null;
   return <Navbar />;
 }
 
@@ -35,23 +33,25 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={clsx(
+          geistSans.variable,
+          geistMono.variable,
+          'antialiased flex flex-col min-h-screen bg-gray-100'
+        )}
       >
-        <ClientWrapper>
-          <div className="flex flex-col flex-grow min-h-screen">
-            <UserProvider>
+        <UserProvider>
+          <ClientWrapper>
+            <div className="flex flex-col flex-grow min-h-screen">
               <NavbarWrapper />
               <main className="flex-grow">
-                <>
-                  {children}
-                </>
+                {children}
               </main>
-            </UserProvider>
-            <div className="mt-auto h-[106px]">
-              <Footer />
+              <div className="mt-auto h-[106px]">
+                <Footer />
+              </div>
             </div>
-          </div>
-        </ClientWrapper>
+          </ClientWrapper>
+        </UserProvider>
       </body>
     </html>
   );

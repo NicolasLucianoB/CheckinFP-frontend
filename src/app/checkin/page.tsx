@@ -3,7 +3,6 @@
 import LoadingMessage from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
-import useIsClient from "@/hooks/useIsClient";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera } from 'lucide-react';
@@ -13,7 +12,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export default function CheckinPage() {
   const { user } = useUser();
   const isAdmin = user?.is_admin;
-  const isClient = useIsClient();
   const firstName = user?.name?.split(' ')[0];
 
   const [message, setMessage] = useState('');
@@ -180,8 +178,6 @@ export default function CheckinPage() {
       }
     };
   }, [scanning, apiUrl]);
-
-  if (!isClient) return null;
 
   return (
     <ProtectedRoute>

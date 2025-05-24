@@ -1,5 +1,6 @@
 'use client';
 
+import { AppLoading } from '@/components/LoadingMessage';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -19,7 +20,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [user, isLoading, router]);
 
   if (isLoading || !user) {
-    return <p>Loading...</p>;
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <AppLoading />;
+        div </ div >
+    )
   }
 
   return <>{children}</>;

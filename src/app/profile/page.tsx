@@ -1,6 +1,6 @@
 'use client';
 
-import LoadingMessage from '@/components/LoadingMessage';
+import LoadingMessage, { AppLoading } from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
 import { ArrowUturnLeftIcon, PencilSquareIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -204,7 +204,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <p className="p-8 text-sm">Carregando perfil...</p>;
+  if (loading) return <AppLoading text="Carregando perfil..." />;
 
   return (
     <ProtectedRoute>
