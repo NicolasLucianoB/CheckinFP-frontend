@@ -204,7 +204,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <AppLoading text="Carregando perfil..." />;
+  if (loading) return < AppLoading />;
 
   return (
     <ProtectedRoute>

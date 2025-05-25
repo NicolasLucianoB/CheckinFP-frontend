@@ -4,10 +4,48 @@ import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const { user } = useUser();
   const firstName = user?.name?.split(' ')[0];
+  const [lastCheckin, setLastCheckin] = useState<string | null>(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
+  useEffect(() => {
+    if (!user || user.is_admin) return;
+
+    const fetchLastCheckin = async () => {
+      try {
+        const res = await fetch(`${API_URL}/last-checkin`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (!res.ok) throw new Error('Falha ao buscar último check-in');
+        const data = await res.json();
+        if (data.last_checkin) {
+          setLastCheckin(data.last_checkin);
+        }
+      } catch (error) {
+        console.error(error);
+        setLastCheckin(null);
+      }
+    };
+
+    fetchLastCheckin();
+  }, [user, API_URL]);
+
+  const formatDateSimple = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    return date.toLocaleString('pt-BR', options).replace(',', ' às');
+  };
 
   return (
     <ProtectedRoute>
@@ -21,11 +59,20 @@ export default function HomePage() {
             className="flex flex-col items-center gap-6"
           >
             <h1 className="text-3xl font-bold text-black">
-              {firstName ? `A Paz, ${firstName}!` : 'A Paz!'}
+              {user
+                ? user.is_admin
+                  ? `A Paz, ${user.name}!`
+                  : firstName
+                    ? `A Paz, ${firstName}!`
+                    : 'A Paz!'
+                : 'A Paz!'}
             </h1>
-            <p className="text-sm text-black text-center">
-              Último Check-in:
-            </p>
+            {!user?.is_admin && (
+              <p className="text-sm text-black text-center">
+                Último Check-in:{' '}
+                {lastCheckin ? formatDateSimple(lastCheckin) : 'Nenhum check-in registrado'}
+              </p>
+            )}
             <Link
               href="/checkin"
               className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition text-lg"

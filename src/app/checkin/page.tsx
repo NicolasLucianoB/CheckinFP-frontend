@@ -3,9 +3,10 @@
 import LoadingMessage from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
+import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Camera } from 'lucide-react';
+import { AlarmClock, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -18,8 +19,14 @@ export default function CheckinPage() {
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
   const scannerRef = useRef<HTMLDivElement>(null);
   const isSubmitting = useRef(false);
+
+  // Adicione estado para mensagem de reset animada:
+  const [resetMessage, setResetMessage] = useState('');
+  const [showResetMessage, setShowResetMessage] = useState(false);
 
   const apiUrl =
     typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -37,12 +44,34 @@ export default function CheckinPage() {
       })
       .then((data) => {
         if (data?.url) setQrUrl(data.url);
+        if (typeof data?.expires_at === 'number') {
+          setExpiresAt(data.expires_at);
+        } else if (typeof data?.expires_in === 'string') {
+          const [h, m, s] = data.expires_in.match(/\d+/g)?.map(Number) || [0, 0, 0];
+          const fallbackMs = ((h * 3600) + (m * 60) + s) * 1000;
+          setExpiresAt(Date.now() + fallbackMs);
+        } else {
+          setExpiresAt(null);
+        }
       })
       .catch((err) => {
         console.error("Erro ao buscar QR Code:", err);
         setMessage('Falha ao gerar QR Code. Tente novamente mais tarde.');
       });
   }, [apiUrl]);
+  useEffect(() => {
+    if (!expiresAt) return;
+
+    const interval = setInterval(() => {
+      const diff = Math.max(0, expiresAt - Date.now());
+      const hours = Math.floor(diff / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiresAt]);
 
   useEffect(() => {
     if (isAdmin) fetchQrCode();
@@ -190,10 +219,12 @@ export default function CheckinPage() {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center w-full space-y-6"
           >
-            <h1 className="text-3xl font-bold text-black">{firstName}, registre seu check-in!</h1>
+            <h1 className="text-3xl font-bold text-black">
+              {isAdmin ? 'Registre seu check-in!' : `${firstName}, registre seu check-in!`}
+            </h1>
             <p className="text-lg text-gray-600 text-center">
               {isAdmin
-                ? "Aqui está o QR Code do culto. Compartilhe com os voluntários."
+                ? "Aqui está o QR Code do culto, compartilhe com os voluntários."
                 : "Clique no ícone de câmera e escaneie o QR Code."}
             </p>
 
@@ -207,6 +238,12 @@ export default function CheckinPage() {
                     height={256}
                     className="object-contain rounded shadow-md bg-white p-4"
                   />
+                  {countdown && (
+                    <p className="text-sm text-black mt-2 flex items-center font-medium">
+                      <AlarmClock className="w-5 h-5 mr-2" />
+                      Expira em <span className="text-red-600 ml-1">{countdown}</span>
+                    </p>
+                  )}
                   <button
                     onClick={async () => {
                       const token = localStorage.getItem('token');
@@ -217,16 +254,40 @@ export default function CheckinPage() {
 
                       if (res.ok) {
                         const data = await res.json();
-                        setMessage(data.message || 'QR Code resetado!');
-                        fetchQrCode();
+                        setResetMessage(data.message || 'QR Code resetado!');
+                        setShowResetMessage(true);
+                        setTimeout(() => {
+                          setShowResetMessage(false);
+                        }, 1500);
+                        setTimeout(() => {
+                          fetchQrCode();
+                        }, 1000);
                       } else {
                         setMessage('Falha ao resetar QR Code.');
                       }
                     }}
-                    className="mt-4 text-sm text-blue-600 underline"
+                    className="mt-4 px-4 py-2 bg-blue-100 text-blue-700 rounded shadow hover:bg-blue-200 transition flex items-center"
                   >
-                    🔄 Gerar novo QR Code
+                    <ArrowPathIcon className="w-5 h-5 mr-2 inline-block" />
+                    Gerar novo QR Code
                   </button>
+                  <AnimatePresence>
+                    {showResetMessage && (
+                      <motion.p
+                        key="reset-message"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{
+                          opacity: { duration: 0.6, ease: "easeInOut" },
+                          y: { duration: 0.6, ease: "easeInOut" },
+                        }}
+                        className="text-green-600 font-medium mt-2"
+                      >
+                        {resetMessage}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </>
               ) : (
                 <p className="text-gray-500 text-sm">Carregando QR Code...</p>
@@ -254,9 +315,10 @@ export default function CheckinPage() {
                 <div ref={scannerRef} id="qr-reader" className="w-full" />
                 <button
                   onClick={() => setScanning(false)}
-                  className="mt-4 text-base text-red-500 underline"
+                  className="mt-4 text-base text-red-500 underline flex items-center"
                 >
-                  Bater em retirada ❌
+                  <XMarkIcon className="w-5 h-5 mr-2 text-red-500" />
+                  Bater em retirada
                 </button>
               </motion.div>
             )}
@@ -266,6 +328,7 @@ export default function CheckinPage() {
               <LoadingMessage />
             ) : message && (
               <motion.p
+                style={{ whiteSpace: 'pre-line' }}
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 200 }}
