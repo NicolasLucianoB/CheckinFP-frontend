@@ -3,6 +3,7 @@
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import { CalendarClock } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -17,11 +18,14 @@ export default function HomePage() {
 
     const fetchLastCheckin = async () => {
       try {
-        const res = await fetch(`${API_URL}/last-checkin`, {
+        const token = localStorage.getItem('token');
+        console.log('Token usado:', token);
+        const res = await fetch(`${API_URL}/checkin/last`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Status da resposta:', res.status);
         if (!res.ok) throw new Error('Falha ao buscar último check-in');
         const data = await res.json();
         if (data.last_checkin) {
@@ -68,9 +72,9 @@ export default function HomePage() {
                 : 'A Paz!'}
             </h1>
             {!user?.is_admin && (
-              <p className="text-sm text-black text-center">
-                Último Check-in:{' '}
-                {lastCheckin ? formatDateSimple(lastCheckin) : 'Nenhum check-in registrado'}
+              <p className="text-sm text-black text-center flex items-center gap-1">
+                <CalendarClock className="w-4 h-4 text-black" />
+                {lastCheckin ? `Último Check-in: ${formatDateSimple(lastCheckin)}` : 'Nenhum check-in registrado'}
               </p>
             )}
             <Link
