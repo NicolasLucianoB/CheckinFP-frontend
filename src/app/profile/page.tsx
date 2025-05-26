@@ -21,7 +21,7 @@ type UserProfile = {
 export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-  const { updateAvatar, setUser } = useUser();
+  const { setUser } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);

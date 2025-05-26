@@ -69,8 +69,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
-  const updateAvatar = (_newAvatarUrl: string) => {
-  };
+  const updateAvatar = () => { };
 
   return (
     <UserContext.Provider value={{ user, setUser, isLoading, logout, updateAvatar }}>
