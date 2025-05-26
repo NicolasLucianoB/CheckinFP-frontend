@@ -21,7 +21,7 @@ type UserProfile = {
 export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-  const { updateAvatar } = useUser();
+  const { updateAvatar, setUser } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -194,6 +194,7 @@ export default function ProfilePage() {
         password: values.password,
         photo_url: photo,
       });
+      setUser((prev) => prev ? { ...prev, avatarUrl: photo } : null);
     } catch (error: unknown) {
       setIsLoading(false);
       if (error instanceof Error) {
@@ -274,7 +275,6 @@ export default function ProfilePage() {
                     className="w-full px-3 py-2 text-left hover:bg-gray-100 text-black flex items-center gap-2 whitespace-nowrap"
                     onClick={() => {
                       setPhoto('');
-                      updateAvatar('');
                       setPhotoMessage('');
                       setTimeout(() => setPhotoMessage('Foto removida.'), 10);
                       setShowImageMenu(false);
@@ -307,7 +307,6 @@ export default function ProfilePage() {
                     const data = await res.json();
                     if (data.secure_url) {
                       setPhoto(data.secure_url);
-                      updateAvatar(data.secure_url);
                       setPhotoMessage('');
                     } else {
                       throw new Error('Erro ao enviar imagem');
@@ -336,7 +335,12 @@ export default function ProfilePage() {
               {photoMessage}
             </motion.p>
 
-            <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full flex flex-col items-center">
+            <form
+              id="profile-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 w-full flex flex-col items-center"
+              noValidate
+            >
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-500">Nome completo</label>
                 <input

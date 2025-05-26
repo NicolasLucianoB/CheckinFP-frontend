@@ -12,7 +12,7 @@ interface User {
 
 interface UserContextType {
   user: User | null;
-  setUser: (user: User) => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
   logout: () => void;
   updateAvatar: (newAvatarUrl: string) => void;
@@ -69,8 +69,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
-  const updateAvatar = (newAvatarUrl: string) => {
-    setUser((prev) => prev ? { ...prev, avatarUrl: newAvatarUrl } : null);
+  const updateAvatar = (_newAvatarUrl: string) => {
   };
 
   return (

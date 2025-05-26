@@ -110,7 +110,7 @@ export default function CheckinPage() {
                   setMessage("❌ QR Code inválido ou sem token.");
                   setScanning(false);
                   setLoading(false);
-                  if (html5QrCode.getState() === 2) { // 2 = SCANNING
+                  if (html5QrCode.getState() === 2) {
                     try {
                       await html5QrCode.stop();
                       await html5QrCode.clear();
@@ -222,11 +222,17 @@ export default function CheckinPage() {
             <h1 className="text-3xl font-bold text-black">
               {isAdmin ? 'Registre seu check-in!' : `${firstName}, registre seu check-in!`}
             </h1>
-            <p className="text-lg text-gray-600 text-center">
-              {isAdmin
-                ? "Aqui está o QR Code do culto, compartilhe com os voluntários."
-                : "Clique no ícone de câmera e escaneie o QR Code."}
-            </p>
+            {isAdmin ? (
+              <p className="text-lg text-gray-600 text-center">
+                Aqui está o QR Code do culto, compartilhe com os voluntários.
+              </p>
+            ) : (
+              !scanning && (
+                <p className="text-lg text-gray-600 text-center">
+                  Clique no ícone de câmera e escaneie o QR Code.
+                </p>
+              )
+            )}
 
             {isAdmin ? (
               qrUrl ? (
@@ -315,7 +321,7 @@ export default function CheckinPage() {
                 <div ref={scannerRef} id="qr-reader" className="w-full" />
                 <button
                   onClick={() => setScanning(false)}
-                  className="mt-4 text-base text-red-500 underline flex items-center"
+                  className="mt-4 text-base text-red-500 underline flex items-center justify-center mx-auto"
                 >
                   <XMarkIcon className="w-5 h-5 mr-2 text-red-500" />
                   Bater em retirada
