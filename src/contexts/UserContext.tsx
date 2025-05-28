@@ -5,7 +5,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: string;
+  roles: string;
   is_admin: boolean;
   avatarUrl?: string;
 }

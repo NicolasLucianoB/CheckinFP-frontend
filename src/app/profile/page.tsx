@@ -8,12 +8,14 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+
+import RoleSelector from '@/components/RoleSelector';
 
 type UserProfile = {
   name: string;
   email: string;
-  role: string;
+  roles: string[];
   photo_url?: string;
   password?: string;
 };
@@ -58,6 +60,7 @@ export default function ProfilePage() {
     resetField,
     clearErrors,
     setError,
+    control,
     formState: { errors, isSubmitted },
     watch,
   } = useForm<UserProfile & { password?: string; confirmPassword?: string }>({
@@ -65,6 +68,9 @@ export default function ProfilePage() {
     reValidateMode: 'onSubmit',
     criteriaMode: 'all',
     shouldFocusError: true,
+    defaultValues: {
+      roles: [],
+    },
   });
 
   useEffect(() => {
@@ -99,7 +105,7 @@ export default function ProfilePage() {
         reset({
           name: data.name,
           email: data.email,
-          role: data.role,
+          roles: data.roles || [],
           password: data.password,
         });
         setPhoto(data.photo_url || '');
@@ -138,20 +144,24 @@ export default function ProfilePage() {
   }, [photoMessage]);
 
   const onSubmit = async (values: UserProfile & { password?: string; confirmPassword?: string }) => {
-    console.log('Dados enviados para atualização:', values);
+    // Debug logs before updatedFields
+    console.log('Valores do formulário recebidos no submit:', values);
+    console.log('Roles enviadas no update:', values.roles);
     setMessage('');
     const updatedFields: Partial<UserProfile & { password?: string }> = {};
     if (values.name !== initialData?.name) updatedFields.name = values.name;
     if (values.email !== initialData?.email) updatedFields.email = values.email;
-    if (values.role !== initialData?.role) updatedFields.role = values.role;
+    // Sempre incluir roles, removendo a lógica de comparação temporariamente
+    updatedFields.roles = values.roles;
     if (values.password) updatedFields.password = values.password;
     if (photo !== initialData?.photo_url) updatedFields.photo_url = photo;
-    console.log('Campos atualizados:', updatedFields);
+    // Log após montagem de updatedFields
+    console.log('Campos atualizados que serão enviados:', updatedFields);
 
     const noChanges =
       values.name === initialData?.name &&
       values.email === initialData?.email &&
-      values.role === initialData?.role &&
+      JSON.stringify(values.roles || []) === JSON.stringify(initialData?.roles || []) &&
       photo === initialData?.photo_url &&
       !values.password;
 
@@ -190,7 +200,7 @@ export default function ProfilePage() {
       setInitialData({
         name: values.name,
         email: values.email,
-        role: values.role,
+        roles: values.roles,
         password: values.password,
         photo_url: photo,
       });
@@ -381,16 +391,22 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-500">Função no ministério</label>
-                <input
-                  type="text"
-                  {...register('role')}
-                  className={`border px-3 py-2 rounded w-80 max-w-full placeholder-gray-500 text-gray-700 ${errors.role ? 'border-red-600' : 'border-gray-400'}`}
-                  placeholder="Projeção, Câmera, etc"
+              <div className="w-80 max-w-full">
+                <label className="block mb-1 text-sm font-medium text-gray-500">Funções no ministério</label>
+                <Controller
+                  name="roles"
+                  control={control}
+                  rules={{ required: '*Vigia! todos os campos são obrigatórios' }}
+                  render={({ field }) => (
+                    <RoleSelector
+                      selectedRoles={field.value || []}
+                      onChange={field.onChange}
+                      hasError={!!errors.roles}
+                    />
+                  )}
                 />
-                {errors.role && (
-                  <p className="text-sm text-red-600 mt-1">{errors.role.message}</p>
+                {errors.roles && (
+                  <p className="text-sm text-red-600 mt-1">{errors.roles.message}</p>
                 )}
               </div>
 
@@ -479,7 +495,7 @@ export default function ProfilePage() {
                     reset({
                       name: initialData?.name || '',
                       email: initialData?.email || '',
-                      role: initialData?.role || '',
+                      roles: initialData?.roles || [],
                       password: '',
                       confirmPassword: '',
                     });
