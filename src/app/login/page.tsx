@@ -8,6 +8,21 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+type ApiUser = {
+  id: string;
+  name: string;
+  email: string;
+  roles: string;
+  is_admin: boolean;
+  photo_url?: string;
+};
+
+type ApiResponse = {
+  message?: string;
+  token?: string;
+  user?: ApiUser;
+};
+
 type FormData = {
   email: string;
   password: string;
@@ -45,7 +60,7 @@ export default function LoginPage() {
         body: JSON.stringify(data),
       });
 
-      const resData = await response.json();
+      const resData: ApiResponse = await response.json();
       console.log('Resposta da API:', resData);
 
       if (!response.ok) {
@@ -58,15 +73,15 @@ export default function LoginPage() {
         return;
       }
 
-      if (setUser) {
+      if (setUser && resData.user) {
         const formattedUser = {
           ...resData.user,
-          avatarUrl: resData.user.photo_url,
+          avatarUrl: resData.user?.photo_url ?? '',
         };
         setUser(formattedUser);
         localStorage.setItem('user', JSON.stringify(formattedUser));
       }
-      localStorage.setItem('token', resData.token);
+      localStorage.setItem('token', resData.token ?? '');
 
       router.push('/home');
     } catch (err) {

@@ -52,7 +52,7 @@ export default function SignUpPage() {
         message?: string;
         token?: string;
         user?: {
-          id: number;
+          id: string;
           name: string;
           email: string;
           roles: string;
