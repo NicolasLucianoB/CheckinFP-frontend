@@ -33,13 +33,35 @@ cd checkin-frontend
 yarn install
 ```
 
-### 3. Start the Development Server
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the root of the `checkin-frontend` directory to set up necessary environment variables. Example:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=<seu-backend>
+JWT_SECRET=your_jwt_secret_key
+```
+
+Make sure to replace the values with your actual backend URL and JWT secret as needed.
+
+### 4. Start the Development Server
 
 ```bash
 yarn dev
 ```
 
 Now, open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
+
+### 5. Build and Start for Production
+
+To create a production build and start the server:
+
+```bash
+yarn build
+yarn start
+```
+
+This will build the optimized production version and start the Next.js server.
 
 ---
 
@@ -53,8 +75,8 @@ yarn dev
 
 This will start the Next.js development server. The app will be accessible at:
 
-- **Frontend (Next.js)**: `https://checkin-fp-frontend.vercel.app`
-- **Backend (Go)**: `https://checkinfp-backend.onrender.com` (Ensure the backend is running)
+- **Frontend (Next.js)**: `<your-frontend>`
+- **Backend (Go)**: `<your-backend>`
 
 ### 📝 Default Pages
 
@@ -72,9 +94,9 @@ Here's the general structure of the project:
 ```
 CheckinFP/
 ├── checkin-frontend/             # Frontend (Next.js)
-│   ├── app/                      # Pages and routing for the app
+│   ├── app/                      # Pages and routing for the app (Next.js 13+ App Router)
 │   ├── components/               # Reusable components (buttons, modals, etc.)
-│   ├── public/                   # Static files (images, fonts, etc.)
+│   ├── public/                   # Static files (images, fonts, etc.) served at root
 │   └── styles/                   # Tailwind CSS configurations and custom styles
 └── checkin-backend/              # Backend (Go)
     ├── controllers/              # API controllers for handling requests
@@ -82,6 +104,8 @@ CheckinFP/
     ├── models/                   # Database models and ORM configuration
     └── main.go                   # Main entry point for the Go server
 ```
+
+*Comments*: The `app` directory uses Next.js 13's App Router for improved routing and layouts. The `public` folder contains assets accessible publicly. Backend folders organize logic for easy maintenance.
 
 ---
 
@@ -91,6 +115,15 @@ The authentication system is based on **JWT (JSON Web Token)**. When logging in,
 
 1. **Login**: Users authenticate with their credentials, and the backend returns a JWT token.
 2. **Token Validation**: The frontend validates the token via a secure `/me` route, and the user context is updated accordingly.
+
+---
+
+## 🧪 Testing Locally and in Production
+
+- For local testing, ensure your backend is running and `.env.local` is properly configured.
+- Use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to test API endpoints.
+- When deploying, verify environment variables are set in your hosting platform (e.g., Vercel's dashboard).
+- Monitor logs and errors via Vercel and backend hosting services for smooth production runs.
 
 ---
 
@@ -110,6 +143,9 @@ The frontend is hosted on **Vercel**, providing optimized deployment for Next.js
 - [Next.js Documentation](https://nextjs.org/docs) - Learn more about Next.js features and APIs.
 - [Next.js GitHub Repository](https://github.com/vercel/next.js) - View the source code and contribute.
 - [JWT.io Introduction](https://jwt.io/introduction/) - Learn more about JSON Web Tokens.
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs) - For styling and utility classes.
+- [React Context API](https://reactjs.org/docs/context.html) - Managing global state.
+- [Vercel Docs](https://vercel.com/docs) - Deployment and environment configuration.
 
 ---
 

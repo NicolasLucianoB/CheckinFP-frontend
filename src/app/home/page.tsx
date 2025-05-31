@@ -1,6 +1,7 @@
 'use client';
 
 import ProtectedRoute from '@/components/ProtectedRouts';
+import RankingChart from '@/components/RankingChart';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
@@ -83,6 +84,10 @@ export default function HomePage() {
             >
               Fazer Check-in
             </Link>
+            <div className="w-full max-w-4xl mt-8">
+              <h2 className="text-xl font-semibold text-black mb-4">Ranking de Pontualidade</h2>
+              <RankingChart />
+            </div>
           </motion.div>
         </main>
       </AnimatePresence>
