@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -48,7 +48,7 @@ const RankingChart: React.FC = () => {
       <div className="flex gap-4 mb-4">
         <select
           value={period}
-          onChange={e => setPeriod(e.target.value as any)}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => setPeriod(e.target.value as 'monthly' | 'last_event' | 'total')}
           className="border border-gray-300 rounded-md px-3 py-1 text-black bg-white cursor-pointer"
         >
           <option value="monthly">Mensal</option>
@@ -57,7 +57,7 @@ const RankingChart: React.FC = () => {
         </select>
         <select
           value={scope}
-          onChange={e => setScope(e.target.value as any)}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => setScope(e.target.value as 'team' | 'individual')}
           className="border border-gray-300 rounded-md px-3 py-1 text-black bg-white cursor-pointer"
         >
           <option value="team">Equipe</option>
