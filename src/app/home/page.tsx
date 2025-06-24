@@ -85,7 +85,7 @@ export default function HomePage() {
               Fazer Check-in
             </Link>
             <div className="w-full max-w-4xl mt-8">
-              <h2 className="text-xl font-semibold text-black mb-4">Ranking de Pontualidade</h2>
+              <h2 className="text-xl font-semibold text-black mb-4 px-2">Gráficos e Rankings</h2>
               <RankingChart />
             </div>
           </motion.div>
