@@ -2,6 +2,7 @@
 
 import ProtectedRoute from '@/components/ProtectedRouts';
 import RankingChart from '@/components/RankingChart';
+import RolesChart from '@/components/RolesChart';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
@@ -87,6 +88,8 @@ export default function HomePage() {
             <div className="w-full max-w-4xl mt-8">
               <h2 className="text-xl font-semibold text-black mb-4 px-2">Gráficos e Rankings</h2>
               <RankingChart />
+              <div className="h-2" />
+              <RolesChart />
             </div>
           </motion.div>
         </main>

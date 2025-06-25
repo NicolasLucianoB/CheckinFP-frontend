@@ -41,11 +41,9 @@ export default function RankingChart() {
   const [sortBy, setSortBy] = useState<SortOption>('punctuality');
   const [period, setPeriod] = useState<PeriodOption>('total');
   const [scope, setScope] = useState<ScopeOption>('team');
-  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(
@@ -61,8 +59,6 @@ export default function RankingChart() {
         setData(json.ranking || []);
       } catch (error) {
         console.error('Erro ao buscar ranking:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -112,51 +108,48 @@ export default function RankingChart() {
         </select>
       </div>
 
-      {loading ? (
-        <div style={{ color: 'black' }}>Pelejando pra carregar os dados...</div>
-      ) : (
-        <div
-          className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px] overflow-x-auto"
-          style={{ maxWidth: '100vw', paddingLeft: '8px', paddingRight: '8px' }}
-        >
-          <h2 style={{ color: '#FEA341' }}>Ranking de Voluntários</h2>
-          <div style={{ minWidth: `${data.length * 60}px`, height: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                barCategoryGap="30%"
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="id" tick={renderCustomAvatarTick} interval={0} />
-                <YAxis />
-                <Tooltip
+      <div
+        className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px] overflow-x-auto"
+        style={{ maxWidth: '100vw', paddingLeft: '8px', paddingRight: '8px' }}
+      >
+        <h2 style={{ color: '#FEA341' }}>Ranking de Voluntários</h2>
+        <div style={{ minWidth: `${data.length * 60}px`, height: '100%' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+              barCategoryGap="30%"
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="id" tick={renderCustomAvatarTick} interval={0} />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number) =>
+                  sortBy === 'punctuality' ? `${value.toFixed(1)}%` : `${value} check-ins`
+                }
+                labelFormatter={(value: string) => {
+                  const user = data.find(d => d.id === value);
+                  return user?.name || value;
+                }}
+                contentStyle={{ color: 'black' }}
+                labelStyle={{ color: '#333', fontWeight: 'normal' }}
+              />
+              <Bar dataKey={sortBy === 'punctuality' ? 'percentage' : 'checkins'} fill="#FEA341" barSize={40}>
+                <LabelList
+                  dataKey={sortBy === 'punctuality' ? 'percentage' : 'checkins'}
+                  position="top"
                   formatter={(value: number) =>
-                    sortBy === 'punctuality' ? `${value.toFixed(1)}%` : `${value} check-ins`
+                    sortBy === 'punctuality' ? `${value.toFixed(1)}%` : value
                   }
-                  labelFormatter={(value: string) => {
-                    const user = data.find(d => d.id === value);
-                    return user?.name || value;
-                  }}
-                  contentStyle={{ color: 'black' }}
-                  labelStyle={{ color: '#333', fontWeight: 'normal' }}
+                  style={{ fill: 'black' }}
                 />
-                <Bar dataKey={sortBy === 'punctuality' ? 'percentage' : 'checkins'} fill="#FEA341" barSize={40}>
-                  <LabelList
-                    dataKey={sortBy === 'punctuality' ? 'percentage' : 'checkins'}
-                    position="top"
-                    formatter={(value: number) =>
-                      sortBy === 'punctuality' ? `${value.toFixed(1)}%` : value
-                    }
-                    style={{ fill: 'black' }}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      )}
-      {!loading && data.length === 0 && (
+      </div>
+
+      {!data.length && (
         <div style={{ color: 'black' }}>Nenhum dado encontrado para esse filtro.</div>
       )}
     </div>
