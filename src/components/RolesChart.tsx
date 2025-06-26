@@ -1,5 +1,14 @@
 'use client';
 
+import { LightBulbIcon } from '@heroicons/react/24/solid';
+import {
+  Camera,
+  GraduationCap,
+  Instagram,
+  Projector,
+  Video,
+  Youtube,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
   Cell,
@@ -8,6 +17,7 @@ import {
   ResponsiveContainer,
   Tooltip
 } from 'recharts';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,8 +37,46 @@ const COLORS = [
   '#3EA7E0', // Blue
 ];
 
+const ICONS: Record<string, React.ElementType> = {
+  Câmera: Video,
+  Transmissão: Youtube,
+  Projeção: Projector,
+  Fotografia: Camera,
+  "Redes Sociais": Instagram,
+  "Em treinamento": GraduationCap,
+  Iluminação: LightBulbIcon,
+};
+
 export default function RolesChart() {
   const [data, setData] = useState<RoleEntry[]>([]);
+
+  interface CustomLabelProps {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    outerRadius: number;
+    index: number;
+  }
+
+  const renderCustomLabel = ({ cx, cy, midAngle, outerRadius, index }: CustomLabelProps) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 20;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    const role = data[index]?.role;
+    const Icon = ICONS[role];
+
+    if (!Icon) return null;
+
+    return (
+      <g transform={`translate(${x},${y})`} textAnchor="middle" dominantBaseline="central">
+        <foreignObject x={-10} y={-10} width={20} height={20}>
+          <Icon size={20} color={COLORS[index % COLORS.length]} />
+        </foreignObject>
+      </g>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +100,7 @@ export default function RolesChart() {
 
   return (
     <div className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px]">
-      <h2 style={{ color: 'black' }} className="text-lg font-semibold">Distribuição de Voluntário por Função</h2>
+      <h2 style={{ color: 'black' }} className="font-semibold">Distribuição de Voluntário por Função</h2>
       {data.length > 0 ? (
         <ResponsiveContainer width="100%" height="90%">
           <PieChart key={data.map(d => d.role).join('-')}>
@@ -68,7 +116,8 @@ export default function RolesChart() {
               isAnimationActive={true}
               animationDuration={800}
               animationEasing="ease-in-out"
-              label={({ role }) => role}
+              labelLine={false}
+              label={renderCustomLabel}
             >
               {data.map((entry, index) => (
                 <Cell

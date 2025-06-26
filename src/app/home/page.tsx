@@ -4,6 +4,7 @@ import ProtectedRoute from '@/components/ProtectedRouts';
 import PunctualityMeter from '@/components/PunctualityMeter';
 import RankingChart from '@/components/RankingChart';
 import RolesChart from '@/components/RolesChart';
+import TimeScatterChart from '@/components/TimeScatterChart';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
@@ -93,6 +94,8 @@ export default function HomePage() {
               <RolesChart />
               <div className="h-2" />
               <PunctualityMeter />
+              <div className="h-2" />
+              <TimeScatterChart />
             </div>
           </motion.div>
         </main>

@@ -44,23 +44,26 @@ export default function PunctualityMeter() {
 
   return (
     <div className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px]">
-      <h2 style={{ color: 'black' }} className="text-lg font-semibold mb-3">Média de Pontualidade do Ministério</h2>
+      <h2 style={{ color: 'black' }} className="font-semibold mb-3">Média de Pontualidade do Ministério</h2>
 
       <div className="filters flex flex-wrap gap-4 mb-2">
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value as 'monthly' | 'last_event' | 'total')}
-          style={{ color: 'black' }}
-        >
-          <option value="total" style={{ color: 'black' }}>Total Geral</option>
-          <option value="monthly" style={{ color: 'black' }}>Mensal</option>
-          <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
-        </select>
+        <div className="rounded-full bg-zinc-200 shadow-inner px-1 py-1">
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as 'monthly' | 'last_event' | 'total')}
+            style={{ color: 'black' }}
+            className="bg-transparent focus:outline-none"
+          >
+            <option value="total" style={{ color: 'black' }}>Total Geral</option>
+            <option value="monthly" style={{ color: 'black' }}>Mensal</option>
+            <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
+          </select>
+        </div>
       </div>
 
       <div className="flex justify-center items-center h-full">
         <ResponsiveContainer width={300} height={300}>
-          <PieChart>
+          <PieChart key={`${period}-${average}`}>
             <Pie
               dataKey="value"
               startAngle={180}
@@ -71,6 +74,9 @@ export default function PunctualityMeter() {
               innerRadius={60}
               outerRadius={100}
               stroke="none"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index]} />
