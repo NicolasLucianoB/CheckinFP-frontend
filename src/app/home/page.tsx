@@ -1,6 +1,7 @@
 'use client';
 
 import ProtectedRoute from '@/components/ProtectedRouts';
+import PunctualityMeter from '@/components/PunctualityMeter';
 import RankingChart from '@/components/RankingChart';
 import RolesChart from '@/components/RolesChart';
 import { useUser } from '@/contexts/UserContext';
@@ -90,6 +91,8 @@ export default function HomePage() {
               <RankingChart />
               <div className="h-2" />
               <RolesChart />
+              <div className="h-2" />
+              <PunctualityMeter />
             </div>
           </motion.div>
         </main>

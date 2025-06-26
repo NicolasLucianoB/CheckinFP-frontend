@@ -52,9 +52,9 @@ export default function RolesChart() {
 
   return (
     <div className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px]">
-      <h2 style={{ color: '#FEA341' }}>Distribuição de Voluntário por Função</h2>
+      <h2 style={{ color: 'black' }} className="text-lg font-semibold">Distribuição de Voluntário por Função</h2>
       {data.length > 0 ? (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="90%">
           <PieChart key={data.map(d => d.role).join('-')}>
             <Pie
               data={data}
@@ -62,8 +62,8 @@ export default function RolesChart() {
               nameKey="role"
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={100}
+              innerRadius={50}
+              outerRadius={90}
               paddingAngle={4}
               isAnimationActive={true}
               animationDuration={800}

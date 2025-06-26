@@ -90,31 +90,30 @@ export default function RankingChart() {
 
   return (
     <div className="ranking-chart">
-      <div className="filters flex flex-wrap gap-2 px-4 mb-4">
-        <select value={period} onChange={(e) => setPeriod(e.target.value as PeriodOption)} style={{ color: 'black' }}>
-          <option value="total" style={{ color: 'black' }}>Total Geral</option>
-          <option value="monthly" style={{ color: 'black' }}>Mensal</option>
-          <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
-        </select>
-
-        <select value={scope} onChange={(e) => setScope(e.target.value as ScopeOption)} style={{ color: 'black' }}>
-          <option value="team" style={{ color: 'black' }}>Equipe Toda</option>
-          <option value="individual" style={{ color: 'black' }}>Individual</option>
-        </select>
-
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} style={{ color: 'black' }}>
-          <option value="punctuality" style={{ color: 'black' }}>Pontualidade</option>
-          <option value="attendance" style={{ color: 'black' }}>Assiduidade</option>
-        </select>
-      </div>
-
       <div
-        className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px] overflow-x-auto"
+        className="w-full max-w-full h-[380px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[520px] overflow-x-auto overflow-y-hidden"
         style={{ maxWidth: '100vw', paddingLeft: '8px', paddingRight: '8px' }}
       >
-        <h2 style={{ color: '#FEA341' }}>Ranking de Voluntários</h2>
+        <h2 style={{ color: 'black' }} className="text-lg font-semibold mb-3">Ranking de Voluntários</h2>
+        <div className="filters flex flex-wrap gap-4 mb-2">
+          <select value={period} onChange={(e) => setPeriod(e.target.value as PeriodOption)} style={{ color: 'black' }}>
+            <option value="total" style={{ color: 'black' }}>Total Geral</option>
+            <option value="monthly" style={{ color: 'black' }}>Mensal</option>
+            <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
+          </select>
+
+          <select value={scope} onChange={(e) => setScope(e.target.value as ScopeOption)} style={{ color: 'black' }}>
+            <option value="team" style={{ color: 'black' }}>Equipe Toda</option>
+            <option value="individual" style={{ color: 'black' }}>Individual</option>
+          </select>
+
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} style={{ color: 'black' }}>
+            <option value="punctuality" style={{ color: 'black' }}>Pontualidade</option>
+            <option value="attendance" style={{ color: 'black' }}>Assiduidade</option>
+          </select>
+        </div>
         <div style={{ minWidth: `${data.length * 60}px`, height: '100%' }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="85%">
             <BarChart
               data={data}
               margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
