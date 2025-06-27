@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import {
   CartesianGrid,
@@ -27,8 +28,9 @@ type ScatterPoint = {
 const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const converterMinutosParaHora = (minutos: number) => {
-  const h = Math.floor(minutos / 60);
-  const m = minutos % 60;
+  const rounded = Math.round(minutos);
+  const h = Math.floor(rounded / 60);
+  const m = rounded % 60;
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 };
 
@@ -118,9 +120,18 @@ export default function TimeScatterChart() {
               content={({ active, payload }) => {
                 if (active && payload && payload.length > 0) {
                   const { user, display_time, date, avatar_url } = payload[0].payload;
+                  const size = 32;
                   return (
                     <div className="bg-white p-2 border rounded shadow text-black flex items-center gap-2">
-                      <img src={avatar_url || '/assets/logo.png'} alt="avatar" className="w-8 h-8 rounded-full" />
+                      <div className="rounded-full overflow-hidden" style={{ width: size, height: size }}>
+                        <Image
+                          src={avatar_url || '/assets/logo.png'}
+                          alt="avatar"
+                          width={size}
+                          height={size}
+                          className="object-cover rounded-full"
+                        />
+                      </div>
                       <div className="text-sm">
                         <strong>{user}</strong><br />
                         {date} às {display_time}

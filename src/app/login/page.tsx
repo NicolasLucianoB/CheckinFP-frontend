@@ -101,6 +101,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
         >
+          <h2 className="text-center text-2xl font-bold text-black mb-6">Bem-vindo de volta!</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
             <h1 className="text-xl font-semibold text-black">Login</h1>
 

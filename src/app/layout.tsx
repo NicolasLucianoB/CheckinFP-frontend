@@ -1,4 +1,27 @@
-'use client';
+export const metadata = {
+  title: 'CheckinFP',
+  description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
+  icons: {
+    icon: '/assets/logo.png',
+  },
+  openGraph: {
+    title: 'CheckinFP',
+    description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
+    url: 'https://checkin-fp-frontend.vercel.app',
+    siteName: 'CheckinFP',
+    images: [
+      {
+        url: '/assets/open-graph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Capa do Checkin-FP',
+      },
+    ],
+    locale: 'pt_BR',
+    type: 'website',
+  },
+};
+
 
 import ClientWrapper from "@/components/ClientWrapper";
 import Footer from "@/components/Footer";
@@ -43,7 +66,7 @@ export default function RootLayout({
           <ClientWrapper>
             <div className="flex flex-col flex-grow min-h-screen">
               <NavbarWrapper />
-              <main className="flex-grow">
+              <main className="flex-grow w-full">
                 {children}
               </main>
               <div className="mt-auto h-[106px]">
