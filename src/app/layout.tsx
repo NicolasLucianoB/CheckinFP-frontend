@@ -1,8 +1,13 @@
 export const metadata = {
+  metadataBase: new URL('https://checkin-fp-frontend.vercel.app'),
   title: 'CheckinFP',
   description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
   icons: {
-    icon: '/assets/logo.png',
+    icon: [
+      { url: '/assets/logo.png', type: 'image/png' },
+      { url: '/favicon.ico', type: 'image/x-icon' }
+    ],
+    shortcut: '/favicon.ico',
   },
   openGraph: {
     title: 'CheckinFP',
@@ -11,7 +16,7 @@ export const metadata = {
     siteName: 'CheckinFP',
     images: [
       {
-        url: '/assets/open-graph-image.png',
+        url: 'https://checkin-fp-frontend.vercel.app/assets/open-graph-image.png',
         width: 1200,
         height: 630,
         alt: 'Capa do Checkin-FP',
@@ -21,7 +26,6 @@ export const metadata = {
     type: 'website',
   },
 };
-
 
 import ClientWrapper from "@/components/ClientWrapper";
 import Footer from "@/components/Footer";
