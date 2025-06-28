@@ -39,7 +39,7 @@ type ScopeOption = 'team' | 'individual';
 
 export default function TimeScatterChart() {
   const [data, setData] = useState<ScatterPoint[]>([]);
-  const [period, setPeriod] = useState<PeriodOption>('monthly');
+  const [period, setPeriod] = useState<PeriodOption>('total');
   const [scope, setScope] = useState<ScopeOption>('team');
 
   useEffect(() => {
