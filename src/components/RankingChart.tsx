@@ -129,9 +129,13 @@ export default function RankingChart() {
               <XAxis dataKey="id" tick={renderCustomAvatarTick} interval={0} />
               <YAxis />
               <Tooltip
-                formatter={(value: number) =>
-                  sortBy === 'punctuality' ? `${value.toFixed(1)}%` : `${value} check-ins`
-                }
+                formatter={(value: number) => {
+                  if (sortBy === 'punctuality') {
+                    return value === 100 ? '100%' : `${value.toFixed(1)}%`;
+                  } else {
+                    return `${value} check-ins`;
+                  }
+                }}
                 labelFormatter={(value: string) => {
                   const user = data.find(d => d.id === value);
                   return user?.name || value;
@@ -144,7 +148,9 @@ export default function RankingChart() {
                   dataKey={sortBy === 'punctuality' ? 'percentage' : 'checkins'}
                   position="top"
                   formatter={(value: number) =>
-                    sortBy === 'punctuality' ? `${value.toFixed(1)}%` : value
+                    sortBy === 'punctuality'
+                      ? (value === 100 ? '100%' : `${value.toFixed(1)}%`)
+                      : value
                   }
                   style={{ fill: 'black' }}
                 />

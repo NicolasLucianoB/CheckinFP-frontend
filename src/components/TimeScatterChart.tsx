@@ -97,7 +97,7 @@ export default function TimeScatterChart() {
       </div>
 
       {data.length > 0 ? (
-        <ResponsiveContainer width="100%" height="90%">
+        <ResponsiveContainer width="100%" height="85%">
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
