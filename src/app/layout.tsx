@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://checkin-fp-frontend.vercel.app/assets/open-graph-image.png',
+        url: 'https://checkin-fp-frontend.vercel.app/open-graph-image.png',
         width: 1200,
         height: 630,
         alt: 'Capa do Checkin-FP',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Checkin-FP',
     description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
-    images: ['https://checkin-fp-frontend.vercel.app/assets/open-graph-image.png'],
+    images: ['https://checkin-fp-frontend.vercel.app/open-graph-image.png'],
   },
 };
 
