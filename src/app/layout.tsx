@@ -8,8 +8,6 @@ import "./globals.css";
 import clsx from 'clsx';
 import { Metadata } from 'next';
 
-export const dynamic = 'force-static';
-
 export const metadata: Metadata = {
   title: 'Checkin-FP',
   description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
