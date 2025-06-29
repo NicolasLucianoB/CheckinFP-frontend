@@ -5,7 +5,6 @@ import { UserProvider } from "@/contexts/UserContext";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import MetaTags from "@/components/MetaTags";
 import clsx from 'clsx';
 import { Metadata } from 'next';
 
@@ -74,9 +73,6 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="h-full">
-      <head>
-        <MetaTags />
-      </head>
       <body
         className={clsx(
           geistSans.variable,

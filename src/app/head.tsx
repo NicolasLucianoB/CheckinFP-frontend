@@ -1,8 +1,6 @@
-import Head from 'next/head';
-
-export default function MetaTags() {
+export default function Head() {
   return (
-    <Head>
+    <>
       <title>Checkin-FP</title>
       <meta name="description" content="Sistema de check-in para voluntários do ministério de Mídia da Família Plena" />
 
@@ -22,6 +20,6 @@ export default function MetaTags() {
       <meta name="twitter:title" content="Checkin-FP" />
       <meta name="twitter:description" content="Sistema de check-in para voluntários do ministério de Mídia da Família Plena" />
       <meta name="twitter:image" content="https://res.cloudinary.com/dwvrcpasa/image/upload/v1751125763/open-graph-image_oilt0h.png" />
-    </Head>
+    </>
   );
 }
