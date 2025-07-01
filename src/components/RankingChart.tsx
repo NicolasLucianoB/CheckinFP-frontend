@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { FunnelIcon } from '@heroicons/react/24/outline';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -41,6 +42,27 @@ export default function RankingChart() {
   const [sortBy, setSortBy] = useState<SortOption>('punctuality');
   const [period, setPeriod] = useState<PeriodOption>('total');
   const [scope, setScope] = useState<ScopeOption>('team');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFilters]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,28 +117,46 @@ export default function RankingChart() {
         style={{ maxWidth: '100vw', paddingLeft: '8px', paddingRight: '8px' }}
       >
         <h2 style={{ color: 'black' }} className="font-semibold mb-3">Ranking de Voluntários</h2>
-        <div className="filters flex flex-wrap gap-4 mb-2">
-          <div className="rounded-full bg-zinc-200 shadow-inner px-1 py-1">
-            <select value={period} onChange={(e) => setPeriod(e.target.value as PeriodOption)} style={{ color: 'black' }}>
-              <option value="total" style={{ color: 'black' }}>Total Geral</option>
-              <option value="monthly" style={{ color: 'black' }}>Mensal</option>
-              <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
-            </select>
-          </div>
+        <div className="relative mb-2" ref={filterRef}>
+          <button
+            className="flex items-center text-sm gap-1 bg-zinc-200 text-black px-2 py-1 rounded-full shadow-inner hover:bg-zinc-300"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FunnelIcon className="w-5 h-5" />
+            Filtrar
+          </button>
 
-          <div className="rounded-full bg-zinc-200 shadow-inner px-1 py-1">
-            <select value={scope} onChange={(e) => setScope(e.target.value as ScopeOption)} style={{ color: 'black' }}>
-              <option value="team" style={{ color: 'black' }}>Equipe Toda</option>
-              <option value="individual" style={{ color: 'black' }}>Individual</option>
-            </select>
-          </div>
+          {showFilters && (
+            <div className="absolute z-10 mt-2 bg-white border rounded flex gap-2 text-black p-2">
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value as PeriodOption)}
+                className="px-2 py-1 text-sm rounded bg-zinc-100"
+              >
+                <option value="total">Total Geral</option>
+                <option value="monthly">Mensal</option>
+                <option value="last_event">Último Evento</option>
+              </select>
 
-          <div className="rounded-full bg-zinc-200 shadow-inner px-1 py-1">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} style={{ color: 'black' }}>
-              <option value="punctuality" style={{ color: 'black' }}>Pontualidade</option>
-              <option value="attendance" style={{ color: 'black' }}>Assiduidade</option>
-            </select>
-          </div>
+              <select
+                value={scope}
+                onChange={(e) => setScope(e.target.value as ScopeOption)}
+                className="px-2 py-1 text-sm rounded bg-zinc-100"
+              >
+                <option value="team">Equipe Toda</option>
+                <option value="individual">Individual</option>
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="px-2 py-1 text-sm rounded bg-zinc-100"
+              >
+                <option value="punctuality">Pontualidade</option>
+                <option value="attendance">Assiduidade</option>
+              </select>
+            </div>
+          )}
         </div>
         <div style={{ minWidth: `${data.length * 60}px`, height: '100%' }}>
           <ResponsiveContainer width="100%" height="85%">

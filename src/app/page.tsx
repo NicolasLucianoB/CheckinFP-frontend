@@ -43,15 +43,15 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3] text-black">
-      <AnimatePresence>
-        <main className="flex flex-col items-center justify-center flex-grow px-6 gap-10 mb-25">
+    <div className="bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3] text-black">
+      <main className="min-h-[calc(100vh-106px)] flex items-center justify-center p-6">
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
-            className="w-full max-w-md mx-auto mt-10 flex flex-col items-center gap-6"
+            className="w-full max-w-md flex flex-col items-center gap-6"
           >
             <h1 className="text-4xl font-extrabold drop-shadow-lg text-center mb-7">
               Bem-vindo ao <span className="text-black">Checkin-FP</span>
@@ -63,8 +63,8 @@ export default function Home() {
             )}
             <WelcomeInfo />
           </motion.div>
-        </main>
-      </AnimatePresence>
+        </AnimatePresence>
+      </main>
     </div>
   );
 }

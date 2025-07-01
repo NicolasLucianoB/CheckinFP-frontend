@@ -70,7 +70,7 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full bg-gray-100">
       <body
         className={clsx(
           geistSans.variable,

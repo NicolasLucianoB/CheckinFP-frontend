@@ -1,7 +1,8 @@
 'use client';
 
+import { FunnelIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -41,6 +42,26 @@ export default function TimeScatterChart() {
   const [data, setData] = useState<ScatterPoint[]>([]);
   const [period, setPeriod] = useState<PeriodOption>('total');
   const [scope, setScope] = useState<ScopeOption>('team');
+  const [showFilters, setShowFilters] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFilters]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,30 +91,36 @@ export default function TimeScatterChart() {
     <div className="w-full max-w-full h-[430px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[550px]">
       <h2 style={{ color: 'black' }} className="font-semibold mb-3">Horários de Chegada por Dia</h2>
 
-      <div className="filters flex flex-wrap gap-2 px-2 mb-4">
-        <div className="rounded-full bg-zinc-200 shadow-inner px-2 py-1">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as PeriodOption)}
-            style={{ color: 'black' }}
-            className="bg-transparent outline-none"
-          >
-            <option value="total" style={{ color: 'black' }}>Total Geral</option>
-            <option value="monthly" style={{ color: 'black' }}>Mensal</option>
-            <option value="last_event" style={{ color: 'black' }}>Último Evento</option>
-          </select>
-        </div>
-        <div className="rounded-full bg-zinc-200 shadow-inner px-2 py-1">
-          <select
-            value={scope}
-            onChange={(e) => setScope(e.target.value as ScopeOption)}
-            style={{ color: 'black' }}
-            className="bg-transparent outline-none"
-          >
-            <option value="team" style={{ color: 'black' }}>Equipe Toda</option>
-            <option value="individual" style={{ color: 'black' }}>Individual</option>
-          </select>
-        </div>
+      <div className="relative mb-4 px-2" ref={filterRef}>
+        <button
+          className="flex items-center text-sm gap-1 bg-zinc-200 text-black px-2 py-1 rounded-full"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <FunnelIcon className="w-5 h-5" />
+          Filtrar
+        </button>
+
+        {showFilters && (
+          <div className="absolute z-10 mt-2 bg-white border rounded flex gap-2 text-black p-2">
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as PeriodOption)}
+              className="px-2 py-1 text-sm rounded bg-zinc-100"
+            >
+              <option value="total">Total Geral</option>
+              <option value="monthly">Mensal</option>
+              <option value="last_event">Último Evento</option>
+            </select>
+            <select
+              value={scope}
+              onChange={(e) => setScope(e.target.value as ScopeOption)}
+              className="px-2 py-1 text-sm rounded bg-zinc-100"
+            >
+              <option value="team">Equipe Toda</option>
+              <option value="individual">Individual</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {data.length > 0 ? (
