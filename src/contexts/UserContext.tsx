@@ -24,6 +24,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    window.location.href = '/login';
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -34,7 +41,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         },
       })
         .then(async (res) => {
-          if (!res.ok) throw new Error('Token inválido');
+          if (res.status === 401) throw new Error('Token inválido');
+          if (!res.ok) throw new Error('Erro ao buscar usuário');
           const rawUserData = await res.json();
           const userData = {
             ...rawUserData,
@@ -44,9 +52,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(userData);
         })
         .catch((err) => {
-          setIsLoading(false);
           console.warn('Erro ao buscar /me:', err.message);
-          setUser(null);
+          logout();
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -62,12 +69,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       }
     }
   }, []);
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
 
   const updateAvatar = () => { };
 

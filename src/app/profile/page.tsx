@@ -1,5 +1,6 @@
 'use client';
 
+import History from '@/components/History';
 import LoadingMessage, { AppLoading } from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
@@ -23,7 +24,7 @@ type UserProfile = {
 export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
 
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -517,6 +518,18 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+            {/* Renderização condicional do histórico para admin */}
+            {user?.is_admin && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-5xl mt-12"
+              >
+                <History />
+              </motion.div>
+            )}
           </motion.div>
         </main>
       </AnimatePresence>
