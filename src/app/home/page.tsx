@@ -11,6 +11,25 @@ import { CalendarClock } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+function DateFormatted({ dateString }: { dateString: string }) {
+  const [formatted, setFormatted] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!dateString) return;
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    setFormatted(date.toLocaleString('pt-BR', options).replace(',', ' às'));
+  }, [dateString]);
+
+  if (!formatted) return <span>Carregando...</span>;
+  return <span>{formatted}</span>;
+}
+
 export default function HomePage() {
   const { user } = useUser();
   const firstName = user?.name?.split(' ')[0];
@@ -23,20 +42,18 @@ export default function HomePage() {
     const fetchLastCheckin = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('Token usado:', token);
         const res = await fetch(`${API_URL}/checkin/last`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Status da resposta:', res.status);
         if (!res.ok) throw new Error('Falha ao buscar último check-in');
         const data = await res.json();
         if (data.last_checkin) {
           setLastCheckin(data.last_checkin);
         }
       } catch (error) {
-        console.error(error);
+        console.error('Erro ao buscar último check-in:', error);
         setLastCheckin(null);
       }
     };
@@ -44,21 +61,10 @@ export default function HomePage() {
     fetchLastCheckin();
   }, [user, API_URL]);
 
-  const formatDateSimple = (dateString: string) => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    return date.toLocaleString('pt-BR', options).replace(',', ' às');
-  };
-
   return (
     <ProtectedRoute>
       <AnimatePresence>
-        <main className="min-h-[calc(100vh-106px)] flex items-center justify-center bg-gray-100 p-4">
+        <main className="min-h-[calc(100vh-106px)] flex flex-col items-center justify-center bg-gray-100 p-6 space-y-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +84,11 @@ export default function HomePage() {
             {!user?.is_admin && (
               <p className="text-sm text-black text-center flex items-center gap-1">
                 <CalendarClock className="w-4 h-4 text-black" />
-                {lastCheckin ? `Último Check-in: ${formatDateSimple(lastCheckin)}` : 'Nenhum check-in registrado'}
+                {lastCheckin ? (
+                  <>Último Check-in: <DateFormatted dateString={lastCheckin} /></>
+                ) : (
+                  'Nenhum check-in registrado'
+                )}
               </p>
             )}
             <Link

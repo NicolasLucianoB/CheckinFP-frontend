@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Checkin-FP',
     description: 'Sistema de check-in para voluntários do ministério de Mídia da Família Plena',
-    url: 'https://checkin-fp-frontend.vercel.app',
+    url: 'https://checkin-fp.vercel.app',
     siteName: 'Checkin-FP',
     locale: 'pt-BR',
     type: 'website',

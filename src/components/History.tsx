@@ -25,7 +25,15 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     if (!user) {
       router.push('/login');
       return;
@@ -69,9 +77,9 @@ export default function History() {
     };
 
     fetchCheckins();
-  }, [user, router]);
+  }, [isClient, user, router]);
 
-  if (!user || !user.is_admin) {
+  if (!isClient || !user || !user.is_admin) {
     return null;
   }
 

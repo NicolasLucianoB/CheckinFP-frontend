@@ -518,7 +518,7 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
-            {/* Renderização condicional do histórico para admin */}
+
             {user?.is_admin && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

@@ -1,5 +1,6 @@
 'use client';
 
+import useIsClient from '@/hooks/useIsClient';
 import { LightBulbIcon } from '@heroicons/react/24/solid';
 import {
   Camera,
@@ -48,6 +49,7 @@ const ICONS: Record<string, React.ElementType> = {
 };
 
 export default function RolesChart() {
+  const isClient = useIsClient();
   const [data, setData] = useState<RoleEntry[]>([]);
 
   interface CustomLabelProps {
@@ -79,31 +81,34 @@ export default function RolesChart() {
   };
 
   useEffect(() => {
+    if (!isClient) return;
+
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_URL}/dashboard/roles-distribution`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const json = await response.json();
         const sorted = [...(json || [])].sort((a, b) => a.role.localeCompare(b.role));
-        setData(sorted);
+        setData([]);
+        setTimeout(() => setData(sorted), 100); // força o remount e animação
       } catch (error) {
         console.error('Erro ao buscar distribuição de funções:', error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [isClient]);
+
+  if (!isClient) return null;
 
   return (
     <div className="w-full max-w-full h-[300px] border border-gray-300 rounded-lg p-4 shadow mx-auto md:max-w-[800px] md:h-[450px]">
       <h2 style={{ color: 'black' }} className="font-semibold">Distribuição de Voluntário por Função</h2>
       {data.length > 0 ? (
         <ResponsiveContainer width="100%" height="90%">
-          <PieChart key={data.map(d => d.role).join('-')}>
+          <PieChart key={data.map((d) => d.role).join(',')}>
             <Pie
               data={data}
               dataKey="percentage"
