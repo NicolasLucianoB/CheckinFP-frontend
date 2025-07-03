@@ -138,10 +138,21 @@ export default function LoginPage() {
               >
                 {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
               </button>
-              {errors.password && errors.password.type !== 'required' && (
-                <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
-              )}
             </div>
+            {errors.password && errors.password.type !== 'required' && (
+              <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                clearErrors();
+                setLoading(true);
+                router.push('/forgot-password');
+              }}
+              className="mt-1 mb-4 text-sm text-blue-500 hover:underline"
+            >
+              Esqueceu sua senha?
+            </button>
 
             {(errors.email?.type === 'required' || errors.password?.type === 'required') && (
               <p className="text-center text-red-600 text-sm mt-1">
@@ -160,20 +171,22 @@ export default function LoginPage() {
 
             {loading && <div className="text-center mt-4"><LoadingMessage /></div>}
 
-            <p className="text-black mt-2 text-center">
-              Novo no ministério?{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  clearErrors();
-                  setLoading(true);
-                  router.push('/signup');
-                }}
-                className="text-blue-500 hover:underline"
-              >
-                Cadastre-se
-              </button>
-            </p>
+            <div className="mt-2 text-center">
+              <p className="text-black">
+                Novo no ministério?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearErrors();
+                    setLoading(true);
+                    router.push('/signup');
+                  }}
+                  className="text-blue-500 hover:underline"
+                >
+                  Cadastre-se
+                </button>
+              </p>
+            </div>
           </form>
         </motion.div>
       </main>
