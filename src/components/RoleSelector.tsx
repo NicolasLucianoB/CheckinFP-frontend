@@ -22,6 +22,7 @@ interface RoleSelectorProps {
   selectedRoles: string[];
   onChange: (roles: string[]) => void;
   hasError?: boolean;
+  isAdmin?: boolean;
 }
 
 const ROLES = [
@@ -34,7 +35,7 @@ const ROLES = [
   { name: "Em treinamento", icon: "GraduationCap", color: "#FEA341" },
 ];
 
-export default function RoleSelector({ selectedRoles, onChange, hasError }: RoleSelectorProps) {
+export default function RoleSelector({ selectedRoles, onChange, hasError, isAdmin = false }: RoleSelectorProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +68,11 @@ export default function RoleSelector({ selectedRoles, onChange, hasError }: Role
         className={`w-full px-3 py-2 rounded text-left flex justify-between items-center ${hasError ? 'border border-red-600' : 'border border-zinc-400'}`}
       >
         <span className={selectedRoles.length === 0 ? "text-gray-400" : "text-black"}>
-          {selectedRoles.length > 0 ? selectedRoles.join(', ') : "Funções"}
+          {selectedRoles.length > 0
+            ? selectedRoles.join(', ')
+            : isAdmin
+              ? "Admin"
+              : "Funções"}
         </span>
         <span className="text-blue-500">{open ? "▲" : "▼"}</span>
       </button>

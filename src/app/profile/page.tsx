@@ -1,6 +1,5 @@
 'use client';
 
-import History from '@/components/History';
 import LoadingMessage, { AppLoading } from '@/components/LoadingMessage';
 import ProtectedRoute from '@/components/ProtectedRouts';
 import { useUser } from '@/contexts/UserContext';
@@ -11,6 +10,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import HistoryAdmin from '@/components/HistoryAdmin';
 import RoleSelector from '@/components/RoleSelector';
 
 type UserProfile = {
@@ -397,12 +397,17 @@ export default function ProfilePage() {
                 <Controller
                   name="roles"
                   control={control}
-                  rules={{ required: '*Vigia! todos os campos são obrigatórios' }}
+                  rules={
+                    user?.is_admin
+                      ? {}
+                      : { required: '*Vigia! todos os campos são obrigatórios' }
+                  }
                   render={({ field }) => (
                     <RoleSelector
                       selectedRoles={field.value || []}
                       onChange={field.onChange}
                       hasError={!!errors.roles}
+                      isAdmin={user?.is_admin}
                     />
                   )}
                 />
@@ -527,7 +532,7 @@ export default function ProfilePage() {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-5xl mt-12"
               >
-                <History />
+                <HistoryAdmin />
               </motion.div>
             )}
           </motion.div>

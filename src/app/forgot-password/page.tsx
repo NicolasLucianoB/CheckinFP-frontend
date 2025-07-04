@@ -36,7 +36,12 @@ export default function Page() {
       if (res.ok) {
         setMessage('Enviaremos um link para redefinir sua senha, irmão(ã).');
       } else {
-        setMessage('Erro ao enviar solicitação. Tente novamente.');
+        const result = await res.json();
+        if (result?.message === 'Email não encontrado') {
+          setMessage('*Email não encontrado, irmão(ã)');
+        } else {
+          setMessage('Erro ao enviar solicitação. Tente novamente.');
+        }
       }
     } catch {
       setMessage('Erro de rede. Tente novamente.');

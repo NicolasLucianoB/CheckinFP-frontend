@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from "@/contexts/UserContext";
-import { Church, LogIn } from "lucide-react";
+import { BarChart2, Church, LogIn } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -45,13 +45,23 @@ export default function Navbar() {
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-gray-200 border-b">
       {user && !isLandingPage && (
-        <button
-          onClick={() => router.push('/home')}
-          className="flex items-center gap-2 text-gray-700 hover:text-black"
-        >
-          <Church className="h-6 w-6" />
-          <span className="font-medium inline">Home</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push('/home')}
+            className="flex items-center gap-2 text-gray-700 hover:text-black"
+          >
+            <Church className="h-6 w-6" />
+            <span className="font-medium inline">Home</span>
+          </button>
+          <span className="text-gray-400">|</span>
+          <button
+            onClick={() => router.push('/performance')}
+            className="flex items-center gap-2 text-gray-700 hover:text-black"
+          >
+            <BarChart2 className="h-6 w-6" />
+            <span className="font-medium inline">Acompanhe</span>
+          </button>
+        </div>
       )}
 
       {!user && isLandingPage ? (

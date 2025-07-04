@@ -1,10 +1,8 @@
 'use client';
 
+import BlessingMessage from '@/components/BlessingMessage';
+import CheckinHistory from '@/components/CheckinHistory';
 import ProtectedRoute from '@/components/ProtectedRouts';
-import PunctualityMeter from '@/components/PunctualityMeter';
-import RankingChart from '@/components/RankingChart';
-import RolesChart from '@/components/RolesChart';
-import TimeScatterChart from '@/components/TimeScatterChart';
 import { useUser } from '@/contexts/UserContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
@@ -97,15 +95,8 @@ export default function HomePage() {
             >
               Fazer Check-in
             </Link>
-            <div className="w-full max-w-4xl mt-8">
-              <h2 className="text-xl font-semibold text-black mb-4 px-2">Gráficos e Rankings</h2>
-              <RankingChart />
-              <div className="h-2" />
-              <RolesChart />
-              <div className="h-2" />
-              <PunctualityMeter />
-              <div className="h-2" />
-              <TimeScatterChart />
+            <div className="w-full mt-6">
+              {user?.is_admin ? <BlessingMessage /> : <CheckinHistory />}
             </div>
           </motion.div>
         </main>
